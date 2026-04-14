@@ -1,0 +1,13 @@
+:root {
+  --bg: #f7f4ef;
+  --surface: #edeae3;
+  --card: #ffffff;
+  --border: #dbd7ce;
+  --gold: #a67c2a;
+  --gold-light: #c9a84c;
+  --white: #1a1714;
+  --muted: #7a7570;
+  --text: #3a3530;
+  --ff-head: 'Bebas Neue', sans-serif;
+  --ff-body: 'DM Sans', sans-serif;
+}
