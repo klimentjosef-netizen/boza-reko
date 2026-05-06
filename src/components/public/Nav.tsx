@@ -39,6 +39,7 @@ export default function Nav() {
       <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: "2.5rem" }}>
         {[
           { label: "Služby", href: "#sluzby" },
+          { label: "Reference", href: "#reference" },
           { label: "Jak to funguje", href: "#proces" },
           { label: "Kalkulačka", href: "#kalkulacka" },
           { label: "Kontakt", href: "#kontakt" },

@@ -36,8 +36,10 @@ export default function Footer() {
       <div style={{ display: "flex", gap: "1.5rem" }}>
         {[
           { label: "Služby", href: "#sluzby" },
+          { label: "Reference", href: "#reference" },
           { label: "Kalkulačka", href: "#kalkulacka" },
           { label: "Kontakt", href: "#kontakt" },
+          { label: "Portál", href: "/login" },
         ].map((link) => (
           <a
             key={link.href}
