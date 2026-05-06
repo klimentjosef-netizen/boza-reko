@@ -2,34 +2,34 @@
 
 const SERVICES = [
   {
-    icon: "🛁",
-    title: "KOUPELNY",
-    desc: "Kompletní rekonstrukce koupelen,demolice, rozvody vody a elektřiny, obklady, dlažba, sanitárka. Malé záchody i velké koupelnové suite.",
+    num: "01",
+    title: "KOUPELNY A WC",
+    desc: "Kompletní rekonstrukce koupelen, demolice, rozvody vody a elektřiny, obklady, dlažba, sanitární keramika. Od malých WC po velké koupelny.",
   },
   {
-    icon: "🍳",
+    num: "02",
     title: "KUCHYNĚ",
-    desc: "Přestavby kuchyní včetně bourání příček, přesunu rozvodů, podlah a povrchů. Spolupracujeme s vaším dodavatelem kuchyňské linky.",
+    desc: "Přestavby kuchyní včetně bourání příček, přesunu rozvodů, podlah a povrchů. Příprava pro kuchyňskou linku dle vašeho návrhu.",
   },
   {
-    icon: "🏠",
-    title: "BYTY & DOMY",
-    desc: "Celkové rekonstrukce bytů a rodinných domů. Bourání, dispozice, povrchy, podlahy,od projektu po předání.",
+    num: "03",
+    title: "BYTY NA KLÍČ",
+    desc: "Celkové rekonstrukce bytů od projektu po předání. Nová dispozice, rozvody, povrchy, podlahy. Vše pod jednou střechou.",
   },
   {
-    icon: "🏢",
-    title: "SVJ & SPOLEČNÉ PROSTORY",
+    num: "04",
+    title: "RODINNÉ DOMY",
+    desc: "Interiérové rekonstrukce domů. Koordinace všech řemesel, od hrubé stavby po finální úpravy. Včetně zateplení a rozvodů.",
+  },
+  {
+    num: "05",
+    title: "SVJ A SPOLEČNÉ PROSTORY",
     desc: "Chodby, schodiště, sklepy, společné prostory. Zkušenosti s koordinací zakázek pro bytová družstva a SVJ.",
   },
   {
-    icon: "🔨",
-    title: "PŘÍPRAVNÉ PRÁCE",
-    desc: "Demolice, vybourání otvorů, strhání dlažby a obkladů, vyklizení. Rychle, čistě, s odvozem suti.",
-  },
-  {
-    icon: "✨",
-    title: "DOKONČOVACÍ PRÁCE",
-    desc: "Malby, štukové omítky, podlahy, obklady, malířské práce. Dokončení po jiném řemeslníkovi nebo jako finální fáze naší zakázky.",
+    num: "06",
+    title: "ELEKTRO A ROZVODY",
+    desc: "Kompletní elektroinstalace, rozvody vody, topení a kanalizace. Revize, nové rozvaděče, podlahové vytápění.",
   },
 ];
 
@@ -55,18 +55,12 @@ export default function ServicesSection() {
             fontFamily: "var(--ff-head)",
             fontSize: "clamp(2.5rem, 4vw, 3.5rem)",
             margin: "0 0 1rem 0",
+            fontWeight: 700,
           }}
         >
           NAŠE SLUŽBY
         </h2>
-        <div
-          style={{
-            width: "48px",
-            height: "3px",
-            background: "var(--gold)",
-            margin: "0 auto",
-          }}
-        />
+        <div style={{ width: "48px", height: "3px", background: "var(--gold)", margin: "0 auto" }} />
       </div>
 
       {/* Grid */}
@@ -85,7 +79,7 @@ export default function ServicesSection() {
       >
         {SERVICES.map((s) => (
           <div
-            key={s.title}
+            key={s.num}
             className="service-card"
             style={{
               background: "var(--card)",
@@ -98,19 +92,48 @@ export default function ServicesSection() {
             onMouseEnter={(e) => (e.currentTarget.style.background = "#f0ece4")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "var(--card)")}
           >
-            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>{s.icon}</div>
+            {/* Number */}
+            <div
+              style={{
+                fontFamily: "var(--ff-head)",
+                fontSize: "2.5rem",
+                fontWeight: 700,
+                color: "var(--border)",
+                lineHeight: 1,
+                marginBottom: "1rem",
+              }}
+            >
+              {s.num}
+            </div>
             <h3
               style={{
                 fontFamily: "var(--ff-head)",
-                fontSize: "1.3rem",
+                fontSize: "1.15rem",
+                fontWeight: 600,
                 letterSpacing: "0.05em",
                 marginBottom: "0.75rem",
               }}
             >
               {s.title}
             </h3>
-            <p style={{ fontSize: "0.88rem", color: "var(--muted)", lineHeight: 1.6 }}>{s.desc}</p>
-            {/* Bottom line pseudo-element via inline style workaround */}
+            <p style={{ fontSize: "0.85rem", color: "var(--muted)", lineHeight: 1.6, marginBottom: "1.25rem" }}>{s.desc}</p>
+
+            {/* CTA link */}
+            <a
+              href="#kalkulacka"
+              style={{
+                fontSize: "0.78rem",
+                fontWeight: 500,
+                color: "var(--gold)",
+                textDecoration: "none",
+                letterSpacing: "0.05em",
+                transition: "color 0.2s",
+              }}
+            >
+              Spočítat cenu →
+            </a>
+
+            {/* Bottom accent line */}
             <span
               className="service-line"
               style={{

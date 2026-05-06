@@ -3,19 +3,8 @@
 import { useEffect, useState } from "react";
 
 export default function HeroSection() {
-  const [offset, setOffset] = useState(0);
   const [visible, setVisible] = useState(false);
 
-  // Parallax on scroll
-  useEffect(() => {
-    function handleScroll() {
-      setOffset(window.scrollY * 0.3);
-    }
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Staggered entrance animation
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 100);
     return () => clearTimeout(t);
@@ -29,59 +18,52 @@ export default function HeroSection() {
         overflow: "hidden",
         display: "flex",
         alignItems: "center",
+        paddingTop: "80px",
       }}
     >
-      {/* Animated background - diagonal moving grid */}
+      {/* Subtle animated background */}
       <div
         style={{
           position: "absolute",
-          inset: "-50%",
-          backgroundImage: `
-            linear-gradient(45deg, transparent 48%, rgba(166,124,42,0.06) 49%, rgba(166,124,42,0.06) 51%, transparent 52%),
-            linear-gradient(-45deg, transparent 48%, rgba(166,124,42,0.04) 49%, rgba(166,124,42,0.04) 51%, transparent 52%)
-          `,
-          backgroundSize: "80px 80px",
-          transform: `translate(${offset * 0.1}px, ${-offset * 0.15}px)`,
-          animation: "heroGridMove 20s linear infinite",
+          inset: 0,
+          backgroundImage:
+            "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)",
+          backgroundSize: "60px 60px",
+          opacity: 0.4,
           pointerEvents: "none",
         }}
       />
 
-      {/* Floating construction elements */}
+      {/* Gold accent circles */}
       <div style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-        {/* Large accent circle */}
         <div
           style={{
             position: "absolute",
             top: "10%",
             right: "-5%",
-            width: "600px",
-            height: "600px",
+            width: "500px",
+            height: "500px",
             borderRadius: "50%",
             border: "1px solid rgba(166,124,42,0.08)",
-            transform: `translateY(${-offset * 0.2}px)`,
           }}
         />
         <div
           style={{
             position: "absolute",
-            top: "15%",
-            right: "-2%",
-            width: "500px",
-            height: "500px",
+            bottom: "-10%",
+            left: "-10%",
+            width: "400px",
+            height: "400px",
             borderRadius: "50%",
             border: "1px solid rgba(166,124,42,0.05)",
-            transform: `translateY(${-offset * 0.15}px)`,
           }}
         />
-
-        {/* Floating particles */}
+        {/* Floating gold dots */}
         {[
-          { top: "20%", left: "75%", size: 6, delay: 0, dur: 6 },
-          { top: "60%", left: "85%", size: 4, delay: 2, dur: 8 },
-          { top: "40%", left: "65%", size: 8, delay: 1, dur: 7 },
-          { top: "80%", left: "70%", size: 5, delay: 3, dur: 5 },
-          { top: "30%", left: "90%", size: 3, delay: 4, dur: 9 },
+          { top: "20%", left: "78%", size: 6, dur: 6 },
+          { top: "55%", left: "85%", size: 4, dur: 8 },
+          { top: "35%", left: "70%", size: 7, dur: 7 },
+          { top: "75%", left: "72%", size: 4, dur: 9 },
         ].map((p, i) => (
           <div
             key={i}
@@ -93,38 +75,11 @@ export default function HeroSection() {
               height: `${p.size}px`,
               background: "var(--gold)",
               borderRadius: "50%",
-              opacity: 0.2,
-              animation: `heroFloat ${p.dur}s ease-in-out ${p.delay}s infinite`,
-              transform: `translateY(${-offset * 0.1}px)`,
+              opacity: 0.15,
+              animation: `heroFloat ${p.dur}s ease-in-out infinite`,
             }}
           />
         ))}
-
-        {/* Construction line accents */}
-        <div
-          style={{
-            position: "absolute",
-            bottom: "15%",
-            right: "10%",
-            width: "200px",
-            height: "2px",
-            background: "linear-gradient(90deg, transparent, var(--gold), transparent)",
-            opacity: 0.15,
-            transform: `translateX(${offset * 0.1}px)`,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "25%",
-            right: "20%",
-            width: "120px",
-            height: "2px",
-            background: "linear-gradient(90deg, transparent, var(--gold), transparent)",
-            opacity: 0.1,
-            transform: `translateX(${-offset * 0.05}px)`,
-          }}
-        />
       </div>
 
       {/* Content */}
@@ -132,8 +87,8 @@ export default function HeroSection() {
         style={{
           position: "relative",
           zIndex: 1,
-          padding: "8rem 5rem 5rem",
-          maxWidth: "800px",
+          padding: "4rem 5rem",
+          maxWidth: "750px",
           width: "100%",
         }}
         className="hero-content"
@@ -155,8 +110,8 @@ export default function HeroSection() {
             borderRadius: "2px",
             marginBottom: "2rem",
             opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(20px)",
-            transition: "opacity 0.8s ease, transform 0.8s ease",
+            transform: visible ? "none" : "translateY(16px)",
+            transition: "opacity 0.6s ease, transform 0.6s ease",
           }}
         >
           <span
@@ -171,25 +126,29 @@ export default function HeroSection() {
           Přijímáme zakázky
         </div>
 
-        {/* H1 - staggered lines */}
+        {/* H1 */}
         <h1 style={{ margin: "0 0 1.5rem 0" }}>
-          {["REKONSTRUKCE", "NA MÍRU.", "BEZ KOMPROMISŮ."].map((line, i) => (
+          {[
+            { text: "REKONSTRUKCE", color: "var(--white)" },
+            { text: "NA MÍRU.", color: "var(--gold)" },
+            { text: "BEZ KOMPROMISŮ.", color: "var(--muted)" },
+          ].map((line, i) => (
             <span
-              key={line}
+              key={i}
               style={{
                 display: "block",
                 fontFamily: "var(--ff-head)",
-                fontSize: i === 0 ? "clamp(3.5rem, 6vw, 6rem)" : "clamp(3rem, 5vw, 5rem)",
-                lineHeight: 1,
+                fontSize: "clamp(2.8rem, 5.5vw, 5rem)",
+                lineHeight: 1.05,
                 letterSpacing: "0.02em",
                 fontWeight: 700,
-                color: i === 1 ? "var(--gold)" : i === 2 ? "var(--muted)" : "var(--white)",
+                color: line.color,
                 opacity: visible ? 1 : 0,
-                transform: visible ? "translateY(0)" : "translateY(30px)",
-                transition: `opacity 0.8s ease ${0.2 + i * 0.15}s, transform 0.8s ease ${0.2 + i * 0.15}s`,
+                transform: visible ? "none" : "translateY(24px)",
+                transition: `opacity 0.6s ease ${0.15 + i * 0.12}s, transform 0.6s ease ${0.15 + i * 0.12}s`,
               }}
             >
-              {line}
+              {line.text}
             </span>
           ))}
         </h1>
@@ -197,15 +156,15 @@ export default function HeroSection() {
         {/* Subtext */}
         <p
           style={{
-            fontSize: "1.1rem",
+            fontSize: "1.05rem",
             color: "var(--muted)",
-            maxWidth: "480px",
+            maxWidth: "460px",
             fontWeight: 300,
             lineHeight: 1.7,
             marginBottom: "2.5rem",
             opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(20px)",
-            transition: "opacity 0.8s ease 0.7s, transform 0.8s ease 0.7s",
+            transform: visible ? "none" : "translateY(16px)",
+            transition: "opacity 0.6s ease 0.6s, transform 0.6s ease 0.6s",
           }}
         >
           Koupelny, kuchyně, byty a domy. Rekonstruujeme v Ostravě a okolí.
@@ -220,13 +179,12 @@ export default function HeroSection() {
             flexWrap: "wrap",
             marginBottom: "3rem",
             opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(20px)",
-            transition: "opacity 0.8s ease 0.9s, transform 0.8s ease 0.9s",
+            transform: visible ? "none" : "translateY(16px)",
+            transition: "opacity 0.6s ease 0.75s, transform 0.6s ease 0.75s",
           }}
         >
           <a
             href="#kontakt"
-            className="hero-btn-primary"
             style={{
               background: "var(--gold)",
               color: "#fff",
@@ -236,7 +194,7 @@ export default function HeroSection() {
               fontWeight: 500,
               letterSpacing: "0.05em",
               textDecoration: "none",
-              transition: "background 0.2s, transform 0.2s",
+              transition: "background 0.2s",
             }}
           >
             Nezávazná poptávka
@@ -268,8 +226,8 @@ export default function HeroSection() {
             display: "flex",
             gap: "3rem",
             opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(20px)",
-            transition: "opacity 0.8s ease 1.1s, transform 0.8s ease 1.1s",
+            transform: visible ? "none" : "translateY(16px)",
+            transition: "opacity 0.6s ease 0.9s, transform 0.6s ease 0.9s",
           }}
           className="hero-stats"
         >
@@ -291,47 +249,13 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "2rem",
-          left: "50%",
-          transform: "translateX(-50%)",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: "0.5rem",
-          opacity: visible ? 0.4 : 0,
-          transition: "opacity 1s ease 1.5s",
-          animation: "heroScrollPulse 2s ease-in-out infinite",
-        }}
-      >
-        <div style={{ fontSize: "0.6rem", textTransform: "uppercase", letterSpacing: "0.15em", color: "var(--muted)" }}>
-          Scroll
-        </div>
-        <div style={{ width: "1px", height: "30px", background: "linear-gradient(to bottom, var(--muted), transparent)" }} />
-      </div>
-
       <style>{`
-        @keyframes heroGridMove {
-          0% { transform: translate(0, 0); }
-          100% { transform: translate(80px, 80px); }
-        }
         @keyframes heroFloat {
           0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-20px); }
-        }
-        @keyframes heroScrollPulse {
-          0%, 100% { transform: translateX(-50%) translateY(0); }
-          50% { transform: translateX(-50%) translateY(8px); }
-        }
-        .hero-btn-primary:hover {
-          background: var(--gold-light) !important;
-          transform: translateY(-2px);
+          50% { transform: translateY(-15px); }
         }
         @media (max-width: 900px) {
-          .hero-content { padding: 7rem 2rem 4rem !important; }
+          .hero-content { padding: 3rem 2rem !important; }
           .hero-stats { gap: 1.5rem !important; flex-wrap: wrap; }
         }
       `}</style>
