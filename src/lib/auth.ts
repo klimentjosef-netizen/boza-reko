@@ -18,13 +18,17 @@ export async function getProfile(): Promise<Profile> {
 
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
+  const { data: profile, error } = await supabase
     .from("profiles")
     .select("*")
     .eq("id", user.id)
     .single();
 
-  if (!profile) redirect("/login");
+  if (error || !profile) {
+    // Sign out to break redirect loop, then send to login
+    await supabase.auth.signOut();
+    redirect("/login?error=no_profile");
+  }
 
   return profile as Profile;
 }

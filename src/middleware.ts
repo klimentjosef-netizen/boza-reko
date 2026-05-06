@@ -37,8 +37,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirect logged-in users away from login page
-  if (request.nextUrl.pathname === "/login" && user) {
+  // Redirect logged-in users away from login page (unless error param present)
+  if (request.nextUrl.pathname === "/login" && user && !request.nextUrl.searchParams.has("error")) {
     const url = request.nextUrl.clone();
     url.pathname = "/portal";
     return NextResponse.redirect(url);
