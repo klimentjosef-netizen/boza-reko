@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Logo from "@/components/ui/Logo";
 
 export default function Nav() {
   const [open, setOpen] = useState(false);
@@ -23,17 +24,8 @@ export default function Nav() {
         justifyContent: "space-between",
       }}
     >
-      <a
-        href="#"
-        style={{
-          fontFamily: "var(--ff-head)",
-          fontSize: "1.8rem",
-          letterSpacing: "0.08em",
-          color: "var(--white)",
-          textDecoration: "none",
-        }}
-      >
-        BOZA<span style={{ color: "var(--gold)" }}>·</span>REKO
+      <a href="#" style={{ textDecoration: "none", lineHeight: 0 }}>
+        <Logo variant="full" theme="color" size="sm" />
       </a>
 
       <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: "2.5rem" }}>

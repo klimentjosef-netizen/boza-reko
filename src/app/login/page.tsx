@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
+import Logo from "@/components/ui/Logo";
 
 export default function LoginPage() {
   return (
@@ -75,23 +76,14 @@ function LoginForm() {
       <div style={{ width: "100%", maxWidth: "400px" }}>
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-          <a
-            href="/"
-            style={{
-              fontFamily: "var(--ff-head)",
-              fontSize: "2.5rem",
-              letterSpacing: "0.08em",
-              color: "var(--white)",
-              textDecoration: "none",
-            }}
-          >
-            BOZA<span style={{ color: "var(--gold)" }}>·</span>REKO
+          <a href="/" style={{ textDecoration: "none", lineHeight: 0, display: "inline-block" }}>
+            <Logo variant="full" theme="color" size="lg" />
           </a>
           <div
             style={{
               fontSize: "0.85rem",
               color: "var(--muted)",
-              marginTop: "0.5rem",
+              marginTop: "0.75rem",
             }}
           >
             Přihlášení do portálu
