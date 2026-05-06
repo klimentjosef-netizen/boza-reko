@@ -4,7 +4,7 @@ const SERVICES = [
   {
     icon: "🛁",
     title: "KOUPELNY",
-    desc: "Kompletní rekonstrukce koupelen — demolice, rozvody vody a elektřiny, obklady, dlažba, sanitárka. Malé záchody i velké koupelnové suite.",
+    desc: "Kompletní rekonstrukce koupelen,demolice, rozvody vody a elektřiny, obklady, dlažba, sanitárka. Malé záchody i velké koupelnové suite.",
   },
   {
     icon: "🍳",
@@ -14,7 +14,7 @@ const SERVICES = [
   {
     icon: "🏠",
     title: "BYTY & DOMY",
-    desc: "Celkové rekonstrukce bytů a rodinných domů. Bourání, dispozice, povrchy, podlahy — od projektu po předání.",
+    desc: "Celkové rekonstrukce bytů a rodinných domů. Bourání, dispozice, povrchy, podlahy,od projektu po předání.",
   },
   {
     icon: "🏢",

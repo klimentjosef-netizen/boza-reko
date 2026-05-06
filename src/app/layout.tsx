@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { Bebas_Neue, DM_Sans } from "next/font/google";
+import { Oswald, Inter } from "next/font/google";
 import "./globals.css";
 
-const bebasNeue = Bebas_Neue({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-bebas",
+const oswald = Oswald({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-head",
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const inter = Inter({
   weight: ["300", "400", "500"],
-  subsets: ["latin"],
-  variable: "--font-dm-sans",
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-body",
   display: "swap",
 });
 
@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="cs" className={`${bebasNeue.variable} ${dmSans.variable}`}>
+    <html lang="cs" className={`${oswald.variable} ${inter.variable}`}>
       <body>{children}</body>
     </html>
   );
