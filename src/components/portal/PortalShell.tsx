@@ -14,6 +14,7 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { label: "Přehled", href: "/portal", icon: "📊", roles: ["owner", "worker", "client", "estimator"] },
+  { label: "Poptávky", href: "/portal/poptavky", icon: "📩", roles: ["owner"] },
   { label: "Projekty", href: "/portal/projekty", icon: "🏗️", roles: ["owner", "worker", "client"] },
   { label: "Božáček", href: "/portal/bozacek", icon: "🤖", roles: ["owner", "estimator"] },
   { label: "Cashflow", href: "/portal/cashflow", icon: "💰", roles: ["owner"] },

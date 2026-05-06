@@ -1,6 +1,7 @@
 "use client";
 
 import type { UserRole } from "@/lib/auth";
+import PhotoUpload from "@/components/portal/PhotoUpload";
 
 type Project = {
   id: string;
@@ -221,6 +222,7 @@ export default function ProjectDetail({
             <h2 style={{ fontFamily: "var(--ff-head)", fontSize: "1.2rem", marginBottom: "1rem" }}>
               FOTODOKUMENTACE
             </h2>
+            <PhotoUpload projectId={project.id} userRole={userRole} />
             {photos.length === 0 ? (
               <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Zatím žádné fotky.</p>
             ) : (
