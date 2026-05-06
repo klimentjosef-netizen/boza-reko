@@ -133,7 +133,7 @@ export default function PortalSection() {
             Stačí odeslat poptávku. Po zahájení rekonstrukce vám vytvoříme přístup do portálu s kompletním přehledem vašeho projektu.
           </p>
           <a
-            href="#kontakt"
+            href="/portal"
             style={{
               background: "var(--gold)",
               color: "#fff",
@@ -147,7 +147,7 @@ export default function PortalSection() {
               display: "inline-block",
             }}
           >
-            Chci rekonstrukci s portálem →
+            Prohlédnout portál →
           </a>
         </div>
       </div>
