@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/auth";
-import Logo from "@/components/ui/Logo";
 
 type NavItem = {
   label: string;
@@ -74,8 +73,17 @@ export default function PortalShell({
             borderBottom: "1px solid rgba(255,255,255,0.08)",
           }}
         >
-          <a href="/" style={{ textDecoration: "none", lineHeight: 0 }}>
-            <Logo variant="full" theme="white" size="sm" />
+          <a
+            href="/"
+            style={{
+              fontFamily: "var(--ff-head)",
+              fontSize: "1.6rem",
+              letterSpacing: "0.08em",
+              color: "#f7f4ef",
+              textDecoration: "none",
+            }}
+          >
+            BOZA<span style={{ color: "var(--gold)" }}>·</span>REKO
           </a>
           <div
             style={{
@@ -83,7 +91,7 @@ export default function PortalShell({
               color: "var(--gold)",
               textTransform: "uppercase",
               letterSpacing: "0.15em",
-              marginTop: "0.5rem",
+              marginTop: "0.25rem",
             }}
           >
             Portál

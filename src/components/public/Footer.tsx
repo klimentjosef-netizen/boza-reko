@@ -1,5 +1,3 @@
-import Logo from "@/components/ui/Logo";
-
 export default function Footer() {
   return (
     <footer
@@ -16,8 +14,17 @@ export default function Footer() {
       }}
     >
       {/* Logo */}
-      <a href="#" style={{ textDecoration: "none", lineHeight: 0 }}>
-        <Logo variant="full" theme="color" size="sm" />
+      <a
+        href="#"
+        style={{
+          fontFamily: "var(--ff-head)",
+          fontSize: "1.4rem",
+          letterSpacing: "0.08em",
+          color: "var(--white)",
+          textDecoration: "none",
+        }}
+      >
+        BOZA<span style={{ color: "var(--gold)" }}>·</span>REKO
       </a>
 
       {/* Copyright */}
