@@ -96,6 +96,7 @@ export default async function ProjectsPage() {
         ) : (
           <div style={{ overflowX: "auto" }}>
           <table
+            className="rtable"
             style={{
               width: "100%",
               minWidth: "700px",
@@ -137,16 +138,16 @@ export default async function ProjectsPage() {
                     key={project.id as string}
                     style={{ borderBottom: "1px solid var(--border)" }}
                   >
-                    <td style={{ padding: "0.75rem 1rem", fontWeight: 500 }}>
+                    <td data-label="Název" style={{ padding: "0.75rem 1rem", fontWeight: 500 }}>
                       {project.name as string}
                     </td>
-                    <td style={{ padding: "0.75rem 1rem", color: "var(--muted)" }}>
+                    <td data-label="Typ" style={{ padding: "0.75rem 1rem", color: "var(--muted)" }}>
                       {TYPE_LABELS[project.type as string] || (project.type as string)}
                     </td>
-                    <td style={{ padding: "0.75rem 1rem", color: "var(--muted)" }}>
+                    <td data-label="Klient" style={{ padding: "0.75rem 1rem", color: "var(--muted)" }}>
                       {client?.full_name || "—"}
                     </td>
-                    <td style={{ padding: "0.75rem 1rem" }}>
+                    <td data-label="Stav" style={{ padding: "0.75rem 1rem" }}>
                       <span
                         style={{
                           display: "inline-block",
@@ -164,12 +165,12 @@ export default async function ProjectsPage() {
                         {status.label}
                       </span>
                     </td>
-                    <td style={{ padding: "0.75rem 1rem", color: "var(--muted)" }}>
+                    <td data-label="Rozpočet" style={{ padding: "0.75rem 1rem", color: "var(--muted)" }}>
                       {project.budget_gross
                         ? `${Number(project.budget_gross).toLocaleString("cs-CZ")} Kč`
                         : "—"}
                     </td>
-                    <td style={{ padding: "0.75rem 1rem" }}>
+                    <td data-label="" style={{ padding: "0.75rem 1rem" }}>
                       <a
                         href={`/portal/projekty/${project.id}`}
                         style={{

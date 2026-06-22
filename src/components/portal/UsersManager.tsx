@@ -246,7 +246,7 @@ export default function UsersManager({
         }}
       >
         <div className="um-table-wrap" style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem", minWidth: "640px" }}>
+        <table className="rtable" style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem", minWidth: "640px" }}>
           <thead>
             <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}>
               {["Jméno", "E-mail", "Telefon", "Role", "Vytvořen", ""].map((h) => (
@@ -272,7 +272,7 @@ export default function UsersManager({
               const roleColor = ROLE_COLORS[user.role] || "#7a7570";
               return (
                 <tr key={user.id} style={{ borderBottom: "1px solid var(--border)" }}>
-                  <td style={{ padding: "0.75rem 1rem" }}>
+                  <td data-label="Jméno" style={{ padding: "0.75rem 1rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                       <div
                         style={{
@@ -294,13 +294,13 @@ export default function UsersManager({
                       <span style={{ fontWeight: 500 }}>{user.full_name || "—"}</span>
                     </div>
                   </td>
-                  <td style={{ padding: "0.75rem 1rem", color: "var(--muted)" }}>
+                  <td data-label="E-mail" style={{ padding: "0.75rem 1rem", color: "var(--muted)" }}>
                     {user.email || "—"}
                   </td>
-                  <td style={{ padding: "0.75rem 1rem", color: "var(--muted)" }}>
+                  <td data-label="Telefon" style={{ padding: "0.75rem 1rem", color: "var(--muted)" }}>
                     {user.phone || "—"}
                   </td>
-                  <td style={{ padding: "0.75rem 1rem" }}>
+                  <td data-label="Role" style={{ padding: "0.75rem 1rem" }}>
                     {editingRole === user.id ? (
                       <select
                         defaultValue={user.role}
@@ -336,10 +336,10 @@ export default function UsersManager({
                       </span>
                     )}
                   </td>
-                  <td style={{ padding: "0.75rem 1rem", color: "var(--muted)", fontSize: "0.8rem" }}>
+                  <td data-label="Vytvořen" style={{ padding: "0.75rem 1rem", color: "var(--muted)", fontSize: "0.8rem" }}>
                     {new Date(user.created_at).toLocaleDateString("cs-CZ")}
                   </td>
-                  <td style={{ padding: "0.75rem 1rem", textAlign: "right" }}>
+                  <td data-label="" style={{ padding: "0.75rem 1rem", textAlign: "right" }}>
                     <button
                       onClick={() => handleDelete(user)}
                       disabled={deletingId === user.id}

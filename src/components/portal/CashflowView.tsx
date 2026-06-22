@@ -255,7 +255,7 @@ export default function CashflowView({
           </div>
         ) : (
           <div className="cf-table-wrap" style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", minWidth: "640px" }}>
+          <table className="rtable" style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", minWidth: "640px" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}>
                 {["Datum", "Popis", "Projekt", "Kategorie", "Částka"].map((h) => (
@@ -279,10 +279,10 @@ export default function CashflowView({
             <tbody>
               {entries.map((entry) => (
                 <tr key={entry.id} style={{ borderBottom: "1px solid var(--border)" }}>
-                  <td style={{ padding: "0.6rem 1rem", color: "var(--muted)" }}>
+                  <td data-label="Datum" style={{ padding: "0.6rem 1rem", color: "var(--muted)" }}>
                     {new Date(entry.date).toLocaleDateString("cs-CZ")}
                   </td>
-                  <td style={{ padding: "0.6rem 1rem" }}>
+                  <td data-label="Popis" style={{ padding: "0.6rem 1rem" }}>
                     {entry.description}
                     {entry.invoice_number && (
                       <span style={{ fontSize: "0.7rem", color: "var(--muted)", marginLeft: "0.5rem" }}>
@@ -290,13 +290,14 @@ export default function CashflowView({
                       </span>
                     )}
                   </td>
-                  <td style={{ padding: "0.6rem 1rem", color: "var(--muted)" }}>
+                  <td data-label="Projekt" style={{ padding: "0.6rem 1rem", color: "var(--muted)" }}>
                     {entry.project?.name || "—"}
                   </td>
-                  <td style={{ padding: "0.6rem 1rem", color: "var(--muted)" }}>
+                  <td data-label="Kategorie" style={{ padding: "0.6rem 1rem", color: "var(--muted)" }}>
                     {entry.category || "—"}
                   </td>
                   <td
+                    data-label="Částka"
                     style={{
                       padding: "0.6rem 1rem",
                       fontWeight: 500,

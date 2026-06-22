@@ -190,6 +190,8 @@ export default function PortalShell({
       <main
         style={{
           flex: 1,
+          minWidth: 0,
+          maxWidth: "100%",
           marginLeft: "260px",
           padding: "2rem 3rem",
           minHeight: "100vh",
@@ -207,7 +209,24 @@ export default function PortalShell({
             width: 260px !important;
           }
           .portal-mobile-toggle { display: block !important; }
-          main { margin-left: 0 !important; padding: 2rem 1.5rem !important; padding-top: 4rem !important; }
+          main { margin-left: 0 !important; padding: 1.25rem 1rem !important; padding-top: 4.25rem !important; }
+        }
+        @media (max-width: 768px) {
+          table.rtable { min-width: 0 !important; width: 100% !important; }
+          table.rtable thead { display: none !important; }
+          table.rtable tbody, table.rtable tr, table.rtable td { display: block !important; width: auto !important; }
+          table.rtable tr { border-bottom: 10px solid var(--bg) !important; background: var(--card); border-radius: 4px; }
+          table.rtable td {
+            display: flex !important; justify-content: space-between; align-items: center; gap: 1rem;
+            text-align: right !important; padding: 0.5rem 0.9rem !important;
+            border-bottom: 1px solid var(--border) !important;
+          }
+          table.rtable td:last-child { border-bottom: none !important; }
+          table.rtable td::before {
+            content: attr(data-label); color: var(--muted); font-size: 0.62rem;
+            text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600;
+            text-align: left; flex-shrink: 0;
+          }
         }
       `}</style>
     </div>
