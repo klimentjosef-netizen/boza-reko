@@ -52,6 +52,13 @@ ROZSAH PRACÍ (scope):
   malby, výměna sanity/dveří dle zadání.
 - "dokoncovaci" = hlavně malby, penetrace, podlahy, drobné opravy. Žádné bourání ani rozvody.
 
+MILNÍKY: navrhni také "milestones" — logickou posloupnost fází realizace ve SPRÁVNÉM
+pořadí stavebních závislostí (nelze malovat před omítkou, nelze pokládat podlahu před
+rozvody apod.). Zahrň jen fáze relevantní pro daný rozsah. Typické pořadí:
+demontáže a bourání → hrubé rozvody (elektro, voda) → zdění příček → sádrové omítky →
+sádrokartony/podhledy → hydroizolace a obklady → podlahy → malby → napínané stropy →
+montáž sanity, kuchyně a dveří → úklid, odvoz suti a předání. Vrať 5–9 výstižných milníků.
+
 VÝSTUP: zavolej nástroj "predlozit_rozpocet". Buď konkrétní a realistický.`;
 
 const TAKEOFF_TOOL: Anthropic.Tool = {
@@ -88,6 +95,11 @@ const TAKEOFF_TOOL: Anthropic.Tool = {
       total_area_m2: { type: "number" },
       property_type: { type: "string" },
       assumptions: { type: "array", items: { type: "string" } },
+      milestones: {
+        type: "array",
+        description: "Logická posloupnost milníků (fází) realizace ve správném pořadí závislostí.",
+        items: { type: "string" },
+      },
       estimated_days: { type: "number" },
       notes: { type: "string" },
     },
@@ -212,6 +224,7 @@ Zavolej nástroj predlozit_rozpocet s kompletním výkazem výměr.`;
       total_area_m2?: number;
       property_type?: string;
       assumptions?: string[];
+      milestones?: string[];
       estimated_days?: number;
       notes?: string;
     };
@@ -234,6 +247,7 @@ Zavolej nástroj predlozit_rozpocet s kompletním výkazem výměr.`;
         property_type: resolvedType,
         estimated_days: takeoff.estimated_days || null,
         assumptions: takeoff.assumptions || [],
+        milestones: takeoff.milestones || [],
         notes: takeoff.notes || "",
       },
       params: {

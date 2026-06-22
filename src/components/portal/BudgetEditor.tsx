@@ -111,6 +111,20 @@ export default function BudgetEditor({
       return;
     }
 
+    // Automatické milníky z Božáčka (v logickém pořadí) — rozprostřené do termínů
+    if (budget.milestones?.length) {
+      const totalDays = budget.estimated_days || 30;
+      const per = totalDays / budget.milestones.length;
+      const start = Date.now();
+      const rows = budget.milestones.map((title, i) => ({
+        project_id: project.id,
+        title,
+        sort_order: i,
+        due_date: new Date(start + Math.round(per * (i + 1)) * 86400000).toISOString().slice(0, 10),
+      }));
+      await supabase.from("milestones").insert(rows);
+    }
+
     fetch("/api/push/notify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

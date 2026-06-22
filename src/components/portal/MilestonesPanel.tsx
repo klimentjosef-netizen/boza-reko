@@ -79,7 +79,13 @@ export default function MilestonesPanel({
             </button>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: "0.88rem", fontWeight: 500, textDecoration: m.completed_at ? "line-through" : "none", opacity: m.completed_at ? 0.7 : 1 }}>{m.title}</div>
-              {m.due_date && <div style={{ fontSize: "0.7rem", color: "var(--muted)", marginTop: "0.2rem" }}>Termín: {new Date(m.due_date).toLocaleDateString("cs-CZ")}</div>}
+              {m.completed_at ? (
+                <div style={{ fontSize: "0.7rem", color: "#2a8a4a", marginTop: "0.2rem", fontWeight: 500 }}>
+                  ✓ Hotovo {new Date(m.completed_at).toLocaleDateString("cs-CZ")}
+                </div>
+              ) : (
+                m.due_date && <div style={{ fontSize: "0.7rem", color: "var(--muted)", marginTop: "0.2rem" }}>Termín: {new Date(m.due_date).toLocaleDateString("cs-CZ")}</div>
+              )}
             </div>
             {canEdit && <button onClick={() => remove(m)} title="Smazat" style={{ background: "none", border: "none", color: "#9a4a2a", cursor: "pointer", fontSize: "1rem" }}>×</button>}
           </div>

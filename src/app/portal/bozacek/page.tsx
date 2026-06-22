@@ -12,6 +12,7 @@ export type BozacekBudget = PricedBudget & {
   property_type: string;
   estimated_days: number | null;
   assumptions: string[];
+  milestones: string[];
   notes: string;
 };
 
