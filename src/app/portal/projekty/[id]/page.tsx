@@ -44,6 +44,7 @@ export default async function ProjectDetailPage({
       photos={photos || []}
       members={members || []}
       userRole={profile.role}
+      profileId={profile.id}
     />
   );
 }

@@ -2,6 +2,7 @@
 
 import type { UserRole } from "@/lib/auth";
 import PhotoUpload from "@/components/portal/PhotoUpload";
+import ProjectChat from "@/components/portal/ProjectChat";
 
 type Project = {
   id: string;
@@ -60,12 +61,14 @@ export default function ProjectDetail({
   photos,
   members,
   userRole,
+  profileId,
 }: {
   project: Project;
   milestones: Milestone[];
   photos: Photo[];
   members: Member[];
   userRole: UserRole;
+  profileId: string;
 }) {
   const status = STATUS_LABELS[project.status] || { label: project.status, color: "#7a7570" };
   const completedMilestones = milestones.filter((m) => m.completed_at).length;
@@ -110,6 +113,9 @@ export default function ProjectDetail({
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1.5rem" }}>
         {/* Left column */}
         <div>
+          {/* Komunikace */}
+          <ProjectChat projectId={project.id} profileId={profileId} />
+
           {/* Progress */}
           {milestones.length > 0 && (
             <div
