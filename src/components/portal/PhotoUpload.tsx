@@ -54,6 +54,12 @@ export default function PhotoUpload({
       });
     }
 
+    fetch("/api/push/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ project_id: projectId, type: "photo" }),
+    }).catch(() => {});
+
     setUploading(false);
     if (fileRef.current) fileRef.current.value = "";
     router.refresh();

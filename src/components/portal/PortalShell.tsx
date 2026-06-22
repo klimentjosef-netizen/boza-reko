@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/auth";
+import PushManager from "@/components/portal/PushManager";
 
 type NavItem = {
   label: string;
@@ -161,6 +162,7 @@ export default function PortalShell({
           >
             Odhlásit se
           </button>
+          <PushManager />
         </div>
       </aside>
 

@@ -20,11 +20,22 @@ export const metadata: Metadata = {
   title: "BOZA REKO – Rekonstrukce bytů a domů | Ostrava",
   description:
     "Kompletní rekonstrukce bytů a domů v Ostravě a okolí. Koupelny, kuchyně, byty na klíč. BOZA REKO s.r.o.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "BOZA REKO",
+    statusBarStyle: "black-translucent",
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#1a1714",
 };
 
 export default function RootLayout({

@@ -73,7 +73,16 @@ export default function ProjectChat({
       sender_id: profileId,
       body,
     });
-    if (error) { setInput(body); alert("Zprávu se nepodařilo odeslat: " + error.message); }
+    if (error) {
+      setInput(body);
+      alert("Zprávu se nepodařilo odeslat: " + error.message);
+    } else {
+      fetch("/api/push/notify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ project_id: projectId, type: "message", preview: body.slice(0, 90) }),
+      }).catch(() => {});
+    }
     setSending(false);
   }
 

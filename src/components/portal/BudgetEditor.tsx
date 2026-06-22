@@ -111,6 +111,12 @@ export default function BudgetEditor({
       return;
     }
 
+    fetch("/api/push/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ project_id: project.id, type: "budget" }),
+    }).catch(() => {});
+
     setSaved(true);
     setTimeout(() => router.push(`/portal/projekty/${project.id}`), 900);
   }
