@@ -258,6 +258,9 @@ export default function HeroSection() {
           .hero-content { padding: 3rem 2rem !important; }
           .hero-stats { gap: 1.5rem !important; flex-wrap: wrap; }
         }
+        @media (max-width: 480px) {
+          .hero-content { padding: 2.5rem 1.25rem !important; }
+        }
       `}</style>
     </section>
   );

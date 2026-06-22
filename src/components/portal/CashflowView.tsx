@@ -112,7 +112,7 @@ export default function CashflowView({
       </div>
 
       {/* Summary cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem", marginBottom: "2rem" }}>
+      <div className="cf-summary" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem", marginBottom: "2rem" }}>
         {[
           { label: "Příjmy", value: totalIncome, color: "#2a8a4a" },
           { label: "Výdaje", value: totalExpense, color: "#9a4a2a" },
@@ -140,6 +140,7 @@ export default function CashflowView({
       {/* Add form */}
       {showForm && (
         <div
+          className="cf-form"
           style={{
             background: "var(--card)",
             border: "1px solid var(--border)",
@@ -152,7 +153,7 @@ export default function CashflowView({
             NOVÝ ZÁZNAM
           </h3>
           <form onSubmit={handleAdd}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "0.75rem", marginBottom: "0.75rem" }}>
+            <div className="cf-form-grid4" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "0.75rem", marginBottom: "0.75rem" }}>
               <div>
                 <label style={labelStyle}>Typ *</label>
                 <select name="type" style={{ ...inputStyle, cursor: "pointer" }} required>
@@ -178,7 +179,7 @@ export default function CashflowView({
                 </select>
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
+            <div className="cf-form-grid3" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
               <div>
                 <label style={labelStyle}>Popis *</label>
                 <input name="description" style={inputStyle} required placeholder="Materiál, práce, platba klienta..." />
@@ -253,7 +254,8 @@ export default function CashflowView({
             Zatím žádné záznamy.
           </div>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+          <div className="cf-table-wrap" style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", minWidth: "640px" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}>
                 {["Datum", "Popis", "Projekt", "Kategorie", "Částka"].map((h) => (
@@ -309,8 +311,21 @@ export default function CashflowView({
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .cf-summary { grid-template-columns: 1fr !important; }
+          .cf-form { max-width: 100% !important; }
+          .cf-form-grid4 { grid-template-columns: 1fr 1fr !important; }
+          .cf-form-grid3 { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 480px) {
+          .cf-form-grid4 { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

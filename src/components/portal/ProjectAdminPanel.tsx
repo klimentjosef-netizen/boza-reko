@@ -87,7 +87,7 @@ export default function ProjectAdminPanel({
         </select>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem", marginBottom: "0.9rem" }}>
+      <div className="pap-dates" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem", marginBottom: "0.9rem" }}>
         <div>
           <label style={labelStyle}>Zahájení</label>
           <input type="date" value={start} onChange={(e) => setStart(e.target.value)} onBlur={() => saveField({ start_date: start || null })} style={inputStyle} />
@@ -127,6 +127,12 @@ export default function ProjectAdminPanel({
           </div>
         )}
       </div>
+
+      <style>{`
+        @media (max-width: 480px) {
+          .pap-dates { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

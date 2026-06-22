@@ -74,6 +74,7 @@ export default function NewProjectPage() {
 
       <form onSubmit={handleSubmit}>
         <div
+          className="novy-card"
           style={{
             background: "var(--card)",
             border: "1px solid var(--border)",
@@ -86,7 +87,7 @@ export default function NewProjectPage() {
             <input name="name" style={inputStyle} required placeholder="např. Rekonstrukce koupelny Nováková" />
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+          <div className="novy-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
             <div>
               <label style={labelStyle}>Typ *</label>
               <select name="type" style={{ ...inputStyle, cursor: "pointer" }} required defaultValue="">
@@ -109,7 +110,7 @@ export default function NewProjectPage() {
             <input name="address" style={inputStyle} placeholder="Ulice, město" />
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+          <div className="novy-row" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
             <div>
               <label style={labelStyle}>Rozpočet bez DPH (Kč)</label>
               <input name="budget_net" type="number" style={inputStyle} placeholder="250000" />
@@ -145,7 +146,7 @@ export default function NewProjectPage() {
             </div>
           )}
 
-          <div style={{ display: "flex", gap: "1rem" }}>
+          <div className="novy-actions" style={{ display: "flex", gap: "1rem" }}>
             <button
               type="submit"
               disabled={loading}
@@ -182,6 +183,14 @@ export default function NewProjectPage() {
           </div>
         </div>
       </form>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .novy-row { grid-template-columns: 1fr !important; }
+          .novy-card { padding: 1.5rem 1.25rem !important; }
+          .novy-actions { flex-wrap: wrap !important; }
+        }
+      `}</style>
     </div>
   );
 }

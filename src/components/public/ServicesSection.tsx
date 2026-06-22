@@ -35,7 +35,7 @@ const SERVICES = [
 
 export default function ServicesSection() {
   return (
-    <section id="sluzby" style={{ background: "var(--surface)", padding: "6rem 3rem" }} className="fade-in">
+    <section id="sluzby" style={{ background: "var(--surface)", padding: "6rem 3rem" }} className="fade-in svc-section">
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: "4rem" }}>
         <div
@@ -158,6 +158,10 @@ export default function ServicesSection() {
         }
         @media (max-width: 900px) {
           .services-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 768px) {
+          .svc-section { padding: 4rem 1.25rem !important; }
+          .service-card { padding: 2rem 1.5rem !important; }
         }
       `}</style>
     </section>

@@ -2,6 +2,14 @@
 
 import { useState } from "react";
 
+const NAV_LINKS = [
+  { label: "Služby", href: "#sluzby" },
+  { label: "Reference", href: "#reference" },
+  { label: "Jak to funguje", href: "#proces" },
+  { label: "Kalkulačka", href: "#kalkulacka" },
+  { label: "Kontakt", href: "#kontakt" },
+];
+
 export default function Nav() {
   const [open, setOpen] = useState(false);
 
@@ -22,6 +30,7 @@ export default function Nav() {
         alignItems: "center",
         justifyContent: "space-between",
       }}
+      className="site-nav"
     >
       <a
         href="#"
@@ -37,13 +46,7 @@ export default function Nav() {
       </a>
 
       <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: "2.5rem" }}>
-        {[
-          { label: "Služby", href: "#sluzby" },
-          { label: "Reference", href: "#reference" },
-          { label: "Jak to funguje", href: "#proces" },
-          { label: "Kalkulačka", href: "#kalkulacka" },
-          { label: "Kontakt", href: "#kontakt" },
-        ].map((link) => (
+        {NAV_LINKS.map((link) => (
           <a
             key={link.href}
             href={link.href}
@@ -104,10 +107,74 @@ export default function Nav() {
         <span style={{ display: "block", width: "20px", height: "2px", background: "var(--white)" }} />
       </button>
 
+      {/* Mobile dropdown menu */}
+      {open && (
+        <div
+          className="nav-mobile-menu"
+          style={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            right: 0,
+            background: "rgba(247,244,239,0.98)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            borderBottom: "1px solid var(--border)",
+            display: "flex",
+            flexDirection: "column",
+            padding: "1rem 1.5rem 1.5rem",
+            gap: "0.25rem",
+          }}
+        >
+          {NAV_LINKS.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              onClick={() => setOpen(false)}
+              style={{
+                color: "var(--muted)",
+                fontSize: "0.9rem",
+                fontWeight: 500,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                textDecoration: "none",
+                padding: "0.75rem 0",
+                borderBottom: "1px solid var(--border)",
+              }}
+            >
+              {link.label}
+            </a>
+          ))}
+          <a
+            href="#kontakt"
+            onClick={() => setOpen(false)}
+            style={{
+              background: "var(--gold)",
+              color: "#fff",
+              padding: "0.75rem 1.4rem",
+              borderRadius: "2px",
+              fontSize: "0.85rem",
+              fontWeight: 500,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              textDecoration: "none",
+              textAlign: "center",
+              marginTop: "0.75rem",
+            }}
+          >
+            Poptávka zdarma
+          </a>
+        </div>
+      )}
+
       <style>{`
         @media (max-width: 900px) {
           .nav-links { display: none !important; }
+          .nav-cta { display: none !important; }
           .nav-mobile-btn { display: flex !important; }
+        }
+        @media (max-width: 480px) {
+          .site-nav { padding: 1rem 1.25rem !important; }
         }
       `}</style>
     </nav>

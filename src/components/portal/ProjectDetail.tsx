@@ -126,7 +126,7 @@ export default function ProjectDetail({
         </a>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1.5rem" }}>
+      <div className="pd-main" style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1.5rem" }}>
         {/* Left column */}
         <div>
           {/* Komunikace */}
@@ -158,7 +158,7 @@ export default function ProjectDetail({
             {photos.length === 0 ? (
               <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Zatím žádné fotky.</p>
             ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem" }}>
+              <div className="pd-photos" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem" }}>
                 {photos.map((p) => (
                   <div
                     key={p.id}
@@ -316,6 +316,16 @@ export default function ProjectDetail({
           )}
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .pd-main { grid-template-columns: 1fr !important; }
+          .pd-photos { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (max-width: 480px) {
+          .pd-photos { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

@@ -137,7 +137,7 @@ export default function ReferencesManager({ initial }: { initial: Reference[] })
         <h2 style={{ fontFamily: "var(--ff-head)", fontSize: "1.1rem", marginBottom: "1rem" }}>
           {editingId ? "Upravit referenci" : "Nová reference"}
         </h2>
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+        <div className="rm-grid" style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
           <div>
             <label style={labelStyle}>Název *</label>
             <input value={form.title} onChange={(e) => setField("title", e.target.value)} style={inputStyle} placeholder="Kompletní rekonstrukce koupelny" />
@@ -153,7 +153,7 @@ export default function ReferencesManager({ initial }: { initial: Reference[] })
           <label style={labelStyle}>Popis</label>
           <textarea value={form.description} onChange={(e) => setField("description", e.target.value)} style={{ ...inputStyle, minHeight: "70px", resize: "vertical" }} />
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "1rem" }}>
+        <div className="rm-grid4" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "1rem" }}>
           <div><label style={labelStyle}>Plocha (m²)</label><input type="number" value={form.area_m2} onChange={(e) => setField("area_m2", e.target.value)} style={inputStyle} /></div>
           <div><label style={labelStyle}>Doba (dní)</label><input type="number" value={form.duration_days} onChange={(e) => setField("duration_days", e.target.value)} style={inputStyle} /></div>
           <div><label style={labelStyle}>Lokalita</label><input value={form.location} onChange={(e) => setField("location", e.target.value)} style={inputStyle} placeholder="Ostrava-Poruba" /></div>
@@ -183,7 +183,7 @@ export default function ReferencesManager({ initial }: { initial: Reference[] })
       <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
         {refs.length === 0 && <p style={{ color: "var(--muted)", fontSize: "0.9rem" }}>Zatím žádné reference. Web zobrazuje ukázková data, dokud nepřidáte vlastní.</p>}
         {refs.map((r) => (
-          <div key={r.id} style={{ display: "flex", alignItems: "center", gap: "1rem", background: "var(--card)", border: "1px solid var(--border)", borderRadius: "4px", padding: "0.75rem 1rem" }}>
+          <div key={r.id} className="rm-row" style={{ display: "flex", alignItems: "center", gap: "1rem", background: "var(--card)", border: "1px solid var(--border)", borderRadius: "4px", padding: "0.75rem 1rem" }}>
             <div style={{ width: "56px", height: "42px", borderRadius: "3px", background: "var(--surface)", overflow: "hidden", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
               {r.cover_image ? <img src={r.cover_image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span style={{ opacity: 0.4 }}>🏗️</span>}
             </div>
@@ -203,6 +203,17 @@ export default function ReferencesManager({ initial }: { initial: Reference[] })
           </div>
         ))}
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .rm-grid { grid-template-columns: 1fr !important; }
+          .rm-grid4 { grid-template-columns: repeat(2, 1fr) !important; }
+          .rm-row { flex-wrap: wrap !important; }
+        }
+        @media (max-width: 480px) {
+          .rm-grid4 { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

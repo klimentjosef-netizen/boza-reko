@@ -36,6 +36,7 @@ export default async function ProjectsPage() {
   return (
     <div>
       <div
+        className="proj-head"
         style={{
           display: "flex",
           justifyContent: "space-between",
@@ -93,9 +94,11 @@ export default async function ProjectsPage() {
             Zatím žádné projekty.
           </div>
         ) : (
+          <div style={{ overflowX: "auto" }}>
           <table
             style={{
               width: "100%",
+              minWidth: "700px",
               borderCollapse: "collapse",
               fontSize: "0.88rem",
             }}
@@ -184,8 +187,15 @@ export default async function ProjectsPage() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .proj-head { flex-wrap: wrap !important; gap: 1rem !important; }
+        }
+      `}</style>
     </div>
   );
 }

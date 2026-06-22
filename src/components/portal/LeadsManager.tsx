@@ -140,7 +140,7 @@ export default function LeadsManager({ leads: initialLeads }: { leads: Lead[] })
           Žádné poptávky{filter !== "all" ? " v tomto stavu" : ""}.
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem" }}>
+        <div className="lm-grid" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem" }}>
           {leads.map((lead) => {
             const statusOpt = STATUS_OPTIONS.find((s) => s.value === lead.status) || STATUS_OPTIONS[0];
             return (
@@ -252,6 +252,12 @@ export default function LeadsManager({ leads: initialLeads }: { leads: Lead[] })
           })}
         </div>
       )}
+
+      <style>{`
+        @media (max-width: 768px) {
+          .lm-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

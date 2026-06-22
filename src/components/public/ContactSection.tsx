@@ -75,7 +75,7 @@ export default function ContactSection() {
   }
 
   return (
-    <section id="kontakt" style={{ background: "var(--bg)", padding: "6rem 3rem" }} className="fade-in">
+    <section id="kontakt" style={{ background: "var(--bg)", padding: "6rem 3rem" }} className="fade-in contact-section">
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: "4rem" }}>
         <div
@@ -132,7 +132,7 @@ export default function ContactSection() {
                 <input type="text" {...register("website")} tabIndex={-1} autoComplete="off" />
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
+              <div className="contact-namerow" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>
                 <div>
                   <label style={labelStyle}>Jméno *</label>
                   <input
@@ -290,6 +290,12 @@ export default function ContactSection() {
       <style>{`
         @media (max-width: 900px) {
           .contact-grid { grid-template-columns: 1fr !important; gap: 3rem !important; }
+        }
+        @media (max-width: 768px) {
+          .contact-section { padding: 4rem 1.25rem !important; }
+        }
+        @media (max-width: 480px) {
+          .contact-namerow { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </section>

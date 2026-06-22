@@ -25,7 +25,7 @@ const STEPS = [
 
 export default function ProcessSection() {
   return (
-    <section id="proces" style={{ background: "var(--bg)", padding: "6rem 3rem" }} className="fade-in">
+    <section id="proces" style={{ background: "var(--bg)", padding: "6rem 3rem" }} className="fade-in proc-section">
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: "4rem" }}>
         <div
@@ -126,6 +126,12 @@ export default function ProcessSection() {
         @media (max-width: 900px) {
           .process-grid { grid-template-columns: 1fr 1fr !important; }
           .process-line { display: none !important; }
+        }
+        @media (max-width: 768px) {
+          .proc-section { padding: 4rem 1.25rem !important; }
+        }
+        @media (max-width: 480px) {
+          .process-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </section>

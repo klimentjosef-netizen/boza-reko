@@ -647,7 +647,7 @@ export default function Calculator() {
     <section
       id="kalkulacka"
       style={{ background: "var(--surface)", padding: "6rem 3rem", position: "relative", overflow: "hidden" }}
-      className="fade-in"
+      className="fade-in calc-section"
     >
       <div style={{ position: "absolute", top: "-200px", right: "-200px", width: "600px", height: "600px", background: "radial-gradient(circle, rgba(166,124,42,0.07), transparent 70%)", pointerEvents: "none" }} />
 
@@ -766,6 +766,9 @@ export default function Calculator() {
         @media (max-width: 900px) {
           .calc-layout { grid-template-columns: 1fr !important; gap: 2rem !important; }
           .calc-info { order: 2; }
+        }
+        @media (max-width: 768px) {
+          .calc-section { padding: 4rem 1.25rem !important; }
         }
       `}</style>
     </section>

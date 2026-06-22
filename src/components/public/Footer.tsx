@@ -33,7 +33,7 @@ export default function Footer() {
       </div>
 
       {/* Quick links */}
-      <div style={{ display: "flex", gap: "1.5rem" }}>
+      <div className="footer-links" style={{ display: "flex", gap: "1.5rem" }}>
         {[
           { label: "Služby", href: "#sluzby" },
           { label: "Reference", href: "#reference" },
@@ -64,6 +64,10 @@ export default function Footer() {
             flex-direction: column !important;
             text-align: center !important;
           }
+        }
+        @media (max-width: 768px) {
+          .site-footer { padding: 2.5rem 1.25rem !important; }
+          .footer-links { flex-wrap: wrap !important; justify-content: center !important; }
         }
       `}</style>
     </footer>

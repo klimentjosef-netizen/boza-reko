@@ -167,7 +167,7 @@ export default function UsersManager({
             NOVÝ UŽIVATEL
           </h3>
           <form onSubmit={handleInvite}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.75rem", marginBottom: "0.75rem" }}>
+            <div className="um-form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.75rem", marginBottom: "0.75rem" }}>
               <div>
                 <label style={labelStyle}>Jméno *</label>
                 <input name="full_name" style={inputStyle} required placeholder="Jan Novák" />
@@ -181,7 +181,7 @@ export default function UsersManager({
                 <input name="phone" type="tel" style={inputStyle} placeholder="+420..." />
               </div>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
+            <div className="um-form-grid2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
               <div>
                 <label style={labelStyle}>Role *</label>
                 <select name="role" style={{ ...inputStyle, cursor: "pointer" }} required defaultValue="">
@@ -245,7 +245,8 @@ export default function UsersManager({
           overflow: "hidden",
         }}
       >
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem" }}>
+        <div className="um-table-wrap" style={{ overflowX: "auto" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.88rem", minWidth: "640px" }}>
           <thead>
             <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}>
               {["Jméno", "E-mail", "Telefon", "Role", "Vytvořen", ""].map((h) => (
@@ -362,7 +363,15 @@ export default function UsersManager({
             })}
           </tbody>
         </table>
+        </div>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .um-form-grid { grid-template-columns: 1fr !important; }
+          .um-form-grid2 { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

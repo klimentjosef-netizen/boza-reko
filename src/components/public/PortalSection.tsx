@@ -2,7 +2,7 @@
 
 export default function PortalSection() {
   return (
-    <section id="portal" style={{ background: "var(--bg)", padding: "6rem 3rem" }} className="fade-in">
+    <section id="portal" style={{ background: "var(--bg)", padding: "6rem 3rem" }} className="fade-in portalsec-section">
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: "4rem" }}>
         <div
@@ -125,6 +125,7 @@ export default function PortalSection() {
             padding: "2rem 3rem",
             maxWidth: "600px",
           }}
+          className="portalsec-cta"
         >
           <div style={{ fontFamily: "var(--ff-head)", fontSize: "1.3rem", fontWeight: 600, marginBottom: "0.5rem" }}>
             PORTÁL DOSTANE KAŽDÝ KLIENT ZDARMA
@@ -158,6 +159,10 @@ export default function PortalSection() {
         }
         @media (min-width: 601px) and (max-width: 900px) {
           .portal-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+        @media (max-width: 768px) {
+          .portalsec-section { padding: 4rem 1.25rem !important; }
+          .portalsec-cta { padding: 1.75rem 1.5rem !important; }
         }
       `}</style>
     </section>

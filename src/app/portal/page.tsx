@@ -97,6 +97,7 @@ export default async function PortalDashboard() {
 
       {/* Stat cards */}
       <div
+        className="dash-stats"
         style={{
           display: "grid",
           gridTemplateColumns: `repeat(${Math.min(statCards.length, 4)}, 1fr)`,
@@ -214,6 +215,7 @@ export default async function PortalDashboard() {
       {/* Quick actions for owner */}
       {profile.role === "owner" && (
         <div
+          className="dash-quick"
           style={{
             background: "var(--card)",
             border: "1px solid var(--border)",
@@ -257,6 +259,16 @@ export default async function PortalDashboard() {
           </div>
         </div>
       )}
+
+      <style>{`
+        @media (max-width: 768px) {
+          .dash-stats { grid-template-columns: repeat(2, 1fr) !important; gap: 1rem !important; }
+          .dash-quick { padding: 1.5rem 1.25rem !important; }
+        }
+        @media (max-width: 480px) {
+          .dash-stats { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

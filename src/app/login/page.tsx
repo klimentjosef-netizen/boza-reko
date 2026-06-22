@@ -64,6 +64,7 @@ function LoginForm() {
 
   return (
     <div
+      className="login-wrap"
       style={{
         minHeight: "100vh",
         display: "flex",
@@ -72,9 +73,9 @@ function LoginForm() {
         padding: "2rem",
       }}
     >
-      <div style={{ width: "100%", maxWidth: "400px" }}>
+      <div className="login-card" style={{ width: "100%", maxWidth: "min(420px, 92vw)" }}>
         {/* Logo */}
-        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+        <div className="login-logo" style={{ textAlign: "center", marginBottom: "3rem" }}>
           <a
             href="/"
             style={{
@@ -172,6 +173,13 @@ function LoginForm() {
           </a>
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 480px) {
+          .login-wrap { padding: 1.25rem !important; }
+          .login-logo { margin-bottom: 2rem !important; }
+        }
+      `}</style>
     </div>
   );
 }

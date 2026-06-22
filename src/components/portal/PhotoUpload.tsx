@@ -66,6 +66,7 @@ export default function PhotoUpload({
         gap: "0.5rem",
         alignItems: "center",
         marginBottom: "1rem",
+        flexWrap: "wrap",
       }}
     >
       <select

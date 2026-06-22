@@ -325,7 +325,7 @@ export default function BozacekPage() {
         {loading ? "🤖 Božáček počítá rozpočet…" : "Vygenerovat položkový rozpočet →"}
       </button>
 
-      <style>{`@media (max-width: 720px) { .boz-options { grid-template-columns: 1fr !important; } }`}</style>
+      <style>{`@media (max-width: 768px) { .boz-options { grid-template-columns: 1fr !important; } }`}</style>
     </div>
   );
 }
