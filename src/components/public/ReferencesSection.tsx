@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 type Project = {
   id: string;
@@ -102,8 +103,22 @@ const DEMO_PROJECTS: Project[] = [
 
 export default function ReferencesSection() {
   const [filter, setFilter] = useState("all");
+  const [projects, setProjects] = useState<Project[]>(DEMO_PROJECTS);
 
-  const filtered = filter === "all" ? DEMO_PROJECTS : DEMO_PROJECTS.filter((p) => p.type === filter);
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("references_projects")
+      .select("id, title, type, description, area_m2, duration_days, location, year, cover_image, images")
+      .eq("published", true)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (data && data.length > 0) setProjects(data as Project[]);
+      });
+  }, []);
+
+  const filtered = filter === "all" ? projects : projects.filter((p) => p.type === filter);
 
   return (
     <section id="reference" style={{ background: "var(--bg)", padding: "6rem 3rem" }} className="fade-in">

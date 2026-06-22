@@ -3,6 +3,8 @@
 import type { UserRole } from "@/lib/auth";
 import PhotoUpload from "@/components/portal/PhotoUpload";
 import ProjectChat from "@/components/portal/ProjectChat";
+import MilestonesPanel from "@/components/portal/MilestonesPanel";
+import ProjectAdminPanel from "@/components/portal/ProjectAdminPanel";
 
 type Project = {
   id: string;
@@ -16,6 +18,7 @@ type Project = {
   end_date: string | null;
   budget_net: number | null;
   budget_gross: number | null;
+  client_id: string | null;
   created_at: string;
 };
 
@@ -39,12 +42,15 @@ type Photo = {
 type Member = {
   id: string;
   role: string;
+  profile_id?: string;
   profile: {
     full_name: string;
     phone: string | null;
     role: string;
   };
 };
+
+type Person = { id: string; full_name: string; role: string };
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   draft: { label: "Návrh", color: "#7a7570" },
@@ -62,6 +68,8 @@ export default function ProjectDetail({
   members,
   userRole,
   profileId,
+  workers = [],
+  clients = [],
 }: {
   project: Project;
   milestones: Milestone[];
@@ -69,10 +77,10 @@ export default function ProjectDetail({
   members: Member[];
   userRole: UserRole;
   profileId: string;
+  workers?: Person[];
+  clients?: Person[];
 }) {
   const status = STATUS_LABELS[project.status] || { label: project.status, color: "#7a7570" };
-  const completedMilestones = milestones.filter((m) => m.completed_at).length;
-  const progress = milestones.length > 0 ? Math.round((completedMilestones / milestones.length) * 100) : 0;
 
   return (
     <div>
@@ -116,105 +124,12 @@ export default function ProjectDetail({
           {/* Komunikace */}
           <ProjectChat projectId={project.id} profileId={profileId} />
 
-          {/* Progress */}
-          {milestones.length > 0 && (
-            <div
-              style={{
-                background: "var(--card)",
-                border: "1px solid var(--border)",
-                borderRadius: "4px",
-                padding: "1.5rem",
-                marginBottom: "1.5rem",
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.75rem" }}>
-                <span style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--muted)", fontWeight: 500 }}>
-                  Postup
-                </span>
-                <span style={{ fontSize: "0.85rem", fontWeight: 500, color: "var(--gold)" }}>
-                  {progress}%
-                </span>
-              </div>
-              <div style={{ height: "6px", background: "var(--surface)", borderRadius: "3px", overflow: "hidden" }}>
-                <div
-                  style={{
-                    height: "100%",
-                    width: `${progress}%`,
-                    background: "var(--gold)",
-                    borderRadius: "3px",
-                    transition: "width 0.5s ease",
-                  }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Milestones */}
-          <div
-            style={{
-              background: "var(--card)",
-              border: "1px solid var(--border)",
-              borderRadius: "4px",
-              padding: "1.5rem",
-              marginBottom: "1.5rem",
-            }}
-          >
-            <h2 style={{ fontFamily: "var(--ff-head)", fontSize: "1.2rem", marginBottom: "1rem" }}>
-              MILNÍKY
-            </h2>
-            {milestones.length === 0 ? (
-              <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>Zatím žádné milníky.</p>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-                {milestones.map((m) => (
-                  <div
-                    key={m.id}
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      gap: "0.75rem",
-                      padding: "0.75rem",
-                      background: m.completed_at ? "rgba(42,138,74,0.05)" : "var(--surface)",
-                      borderRadius: "4px",
-                      border: `1px solid ${m.completed_at ? "rgba(42,138,74,0.15)" : "var(--border)"}`,
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: "20px",
-                        height: "20px",
-                        borderRadius: "50%",
-                        border: `2px solid ${m.completed_at ? "#2a8a4a" : "var(--border)"}`,
-                        background: m.completed_at ? "#2a8a4a" : "transparent",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                        marginTop: "2px",
-                        color: "#fff",
-                        fontSize: "0.6rem",
-                      }}
-                    >
-                      {m.completed_at ? "✓" : ""}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: "0.88rem", fontWeight: 500 }}>{m.title}</div>
-                      {m.description && (
-                        <div style={{ fontSize: "0.8rem", color: "var(--muted)", marginTop: "0.2rem" }}>
-                          {m.description}
-                        </div>
-                      )}
-                      {m.due_date && (
-                        <div style={{ fontSize: "0.7rem", color: "var(--muted)", marginTop: "0.25rem" }}>
-                          Termín: {new Date(m.due_date).toLocaleDateString("cs-CZ")}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Milníky */}
+          <MilestonesPanel
+            projectId={project.id}
+            initial={milestones}
+            canEdit={userRole === "owner" || userRole === "worker"}
+          />
 
           {/* Photos */}
           <div
@@ -275,6 +190,16 @@ export default function ProjectDetail({
 
         {/* Right sidebar */}
         <div>
+          {/* Správa projektu (majitel) */}
+          {userRole === "owner" && (
+            <ProjectAdminPanel
+              project={project}
+              members={members}
+              workers={workers}
+              clients={clients}
+            />
+          )}
+
           {/* Project info */}
           <div
             style={{

@@ -19,6 +19,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Zprávy", href: "/portal/zpravy", icon: "💬", roles: ["owner", "worker", "client", "estimator"] },
   { label: "Božáček", href: "/portal/bozacek", icon: "🤖", roles: ["owner", "estimator"] },
   { label: "Cashflow", href: "/portal/cashflow", icon: "💰", roles: ["owner"] },
+  { label: "Reference", href: "/portal/reference", icon: "🏆", roles: ["owner"] },
   { label: "Uživatelé", href: "/portal/uzivatele", icon: "👥", roles: ["owner"] },
 ];
 

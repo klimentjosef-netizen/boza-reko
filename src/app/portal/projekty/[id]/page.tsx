@@ -37,6 +37,19 @@ export default async function ProjectDetailPage({
     .select("*, profile:profiles(*)")
     .eq("project_id", id);
 
+  // Majitel: seznam řemeslníků a klientů pro správu projektu
+  let workers: { id: string; full_name: string; role: string }[] = [];
+  let clients: { id: string; full_name: string; role: string }[] = [];
+  if (profile.role === "owner") {
+    const { data: people } = await supabase
+      .from("profiles")
+      .select("id, full_name, role")
+      .in("role", ["worker", "client"])
+      .order("full_name");
+    workers = (people || []).filter((p) => p.role === "worker");
+    clients = (people || []).filter((p) => p.role === "client");
+  }
+
   return (
     <ProjectDetail
       project={project}
@@ -45,6 +58,8 @@ export default async function ProjectDetailPage({
       members={members || []}
       userRole={profile.role}
       profileId={profile.id}
+      workers={workers}
+      clients={clients}
     />
   );
 }

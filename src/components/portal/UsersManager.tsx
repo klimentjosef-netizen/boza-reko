@@ -63,6 +63,7 @@ export default function UsersManager({
   const [showInvite, setShowInvite] = useState(false);
   const [inviting, setInviting] = useState(false);
   const [editingRole, setEditingRole] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   async function handleInvite(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -96,6 +97,23 @@ export default function UsersManager({
     await supabase.from("profiles").update({ role: newRole }).eq("id", userId);
     setEditingRole(null);
     router.refresh();
+  }
+
+  async function handleDelete(user: User) {
+    if (!confirm(`Opravdu smazat uživatele „${user.full_name}"? Tato akce je nevratná.`)) return;
+    setDeletingId(user.id);
+    const res = await fetch("/api/users/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: user.id }),
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      alert(data.error || "Nepodařilo se smazat uživatele.");
+    } else {
+      router.refresh();
+    }
+    setDeletingId(null);
   }
 
   return (
@@ -313,8 +331,24 @@ export default function UsersManager({
                   <td style={{ padding: "0.75rem 1rem", color: "var(--muted)", fontSize: "0.8rem" }}>
                     {new Date(user.created_at).toLocaleDateString("cs-CZ")}
                   </td>
-                  <td style={{ padding: "0.75rem 1rem" }}>
-                    {/* future: assign to project, delete */}
+                  <td style={{ padding: "0.75rem 1rem", textAlign: "right" }}>
+                    <button
+                      onClick={() => handleDelete(user)}
+                      disabled={deletingId === user.id}
+                      title="Smazat uživatele"
+                      style={{
+                        background: "none",
+                        border: "1px solid var(--border)",
+                        borderRadius: "2px",
+                        padding: "0.25rem 0.6rem",
+                        fontSize: "0.72rem",
+                        color: "#9a4a2a",
+                        cursor: "pointer",
+                        fontFamily: "var(--ff-body)",
+                      }}
+                    >
+                      {deletingId === user.id ? "Mažu…" : "Smazat"}
+                    </button>
                   </td>
                 </tr>
               );
