@@ -37,6 +37,14 @@ export default async function ProjectDetailPage({
     .select("*, profile:profiles(*)")
     .eq("project_id", id);
 
+  const { data: budgets } = await supabase
+    .from("budgets")
+    .select("id, name, status, quality_level, margin_percent, items, total_net, total_gross, notes")
+    .eq("project_id", id)
+    .order("created_at", { ascending: false })
+    .limit(1);
+  const budget = budgets?.[0] || null;
+
   // Majitel: seznam řemeslníků a klientů pro správu projektu
   let workers: { id: string; full_name: string; role: string }[] = [];
   let clients: { id: string; full_name: string; role: string }[] = [];
@@ -60,6 +68,7 @@ export default async function ProjectDetailPage({
       profileId={profile.id}
       workers={workers}
       clients={clients}
+      budget={budget}
     />
   );
 }

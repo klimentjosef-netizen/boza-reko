@@ -5,6 +5,8 @@ import PhotoUpload from "@/components/portal/PhotoUpload";
 import ProjectChat from "@/components/portal/ProjectChat";
 import MilestonesPanel from "@/components/portal/MilestonesPanel";
 import ProjectAdminPanel from "@/components/portal/ProjectAdminPanel";
+import ProjectBudgetCard from "@/components/portal/ProjectBudgetCard";
+import type { PricedItem } from "@/lib/pricebook";
 
 type Project = {
   id: string;
@@ -70,6 +72,7 @@ export default function ProjectDetail({
   profileId,
   workers = [],
   clients = [],
+  budget = null,
 }: {
   project: Project;
   milestones: Milestone[];
@@ -79,6 +82,11 @@ export default function ProjectDetail({
   profileId: string;
   workers?: Person[];
   clients?: Person[];
+  budget?: {
+    id: string; name: string; status: string; quality_level: string | null;
+    margin_percent: number | null; items: PricedItem[];
+    total_net: number | null; total_gross: number | null; notes: string | null;
+  } | null;
 }) {
   const status = STATUS_LABELS[project.status] || { label: project.status, color: "#7a7570" };
 
@@ -123,6 +131,9 @@ export default function ProjectDetail({
         <div>
           {/* Komunikace */}
           <ProjectChat projectId={project.id} profileId={profileId} />
+
+          {/* Rozpočet */}
+          {budget && <ProjectBudgetCard budget={budget} />}
 
           {/* Milníky */}
           <MilestonesPanel

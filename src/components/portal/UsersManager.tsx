@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 type User = {
@@ -93,9 +92,17 @@ export default function UsersManager({
   }
 
   async function handleRoleChange(userId: string, newRole: string) {
-    const supabase = createClient();
-    await supabase.from("profiles").update({ role: newRole }).eq("id", userId);
     setEditingRole(null);
+    const res = await fetch("/api/users/role", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: userId, role: newRole }),
+    });
+    if (!res.ok) {
+      const data = await res.json();
+      alert(data.error || "Změna role se nezdařila.");
+      return;
+    }
     router.refresh();
   }
 

@@ -14,47 +14,45 @@ export const maxDuration = 60;
 const SYSTEM_PROMPT = `Jsi Božáček — špičkový rozpočtář stavební firmy BOZA REKO s.r.o. (Ostrava),
 specialista na rekonstrukce bytů, domů a jednotlivých místností.
 
-Tvým úkolem je z parametrů zakázky sestavit přesný VÝKAZ VÝMĚR — tedy které
-položky se na zakázce provedou a v jakém MNOŽSTVÍ. Ceny NEŘEŠÍŠ — ty se doplní
-automaticky z firemního ceníku podle klíče položky. Ty určuješ pouze "key" a "quantity".
+Tvým úkolem je z parametrů zakázky (a případně z přiloženého PŮDORYSU) sestavit přesný
+VÝKAZ VÝMĚR — které položky se na zakázce provedou a v jakém MNOŽSTVÍ. Ceny NEŘEŠÍŠ —
+doplní se automaticky z firemního ceníku podle klíče položky. Ty určuješ "key" a "quantity".
 
-POUŽÍVEJ VÝHRADNĚ klíče (key) z následujícího katalogu. Když potřebuješ položku,
-která v katalogu není, vrať ji jako vlastní řádek (vyplň name, dil, unit, work_price,
-material_price) — ale snaž se maximálně držet katalogu.
+POUŽÍVEJ VÝHRADNĚ klíče (key) z následujícího katalogu. Pokud potřebuješ položku mimo
+katalog, vrať ji jako vlastní řádek (name, dil, unit, work_price, material_price) — ale
+maximálně se drž katalogu.
 
 == KATALOG POLOŽEK ==
 {{CATALOG}}
 
+POKUD JE PŘILOŽEN PŮDORYS (obrázek nebo PDF):
+- Přečti z něj jednotlivé místnosti a jejich plochy. Plochy ber z popisků (m²) nebo je
+  spočítej z kót/rozměrů. Pokud měřítko/rozměry chybí, odhadni plochy z typických proporcí
+  a uveď to v assumptions.
+- Vrať seznam rozpoznaných místností v poli "rooms" a celkovou plochu "total_area_m2".
+- Urči typ nemovitosti ("property_type", např. "Byt 3+1") a (pokud z popisu neplyne jinak)
+  předpokládej kompletní rekonstrukci.
+
 ODBORNÉ ZÁSADY VÝPOČTU MNOŽSTVÍ (výkaz výměr):
 - Plochu stěn počítej z podlahové plochy a světlé výšky (default 2,6 m):
   obvod místnosti ≈ 4,2 × √(podlahová plocha), plocha stěn = obvod × výška.
-- Omítky/malby/penetrace stěn: plocha stěn všech rekonstruovaných místností
-  (odečti cca 10 % na otvory u větších místností).
-- Malba stropu a penetrace stropu: podlahová plocha místností.
-- Podlahy (Liapor, desky, izolace, vinyl, textílie, nivelace): podlahová plocha.
-- Obvodové/přechodové lišty (bm): obvod podlah.
-- Obklady (koupelna/WC): stěny do výšky cca 2,0–2,2 m; dlažba: podlaha koupelny/WC.
+- Omítky/malby/penetrace stěn: plocha stěn rekonstruovaných místností (−10 % na otvory u větších).
+- Malba a penetrace stropu: podlahová plocha. Podlahy (Liapor, desky, izolace, vinyl, textílie,
+  nivelace): podlahová plocha. Lišty (bm): obvod podlah.
+- Obklady (koupelna/WC): stěny do výšky ~2,0–2,2 m; dlažba: podlaha koupelny/WC.
 - Hydroizolace + koutová páska: podlaha + spodní část stěn mokrých provozů.
-- Sanitární sestavy (sprchový kout, umyvadlo, WC, vana), kuchyně, vestavěné skříně,
-  dveře (mont_dvere), vstupní dveře — počítej podle skutečného počtu (ks/kpl).
-- Dokončovací práce koupelna/WC: 1 ks za každou koupelnu/WC (montáž sanity).
-- Elektro (el_rozvody) a napínané stropy: m² podlahové plochy. TZB voda: 1 kpl.
-- Režie (doprava, likvidace odpadu): vždy 1 kpl. Statika jen u zásahů do nosných konstrukcí.
+- Sanitární sestavy, kuchyně, vestavěné skříně, dveře, vstupní dveře — dle skutečného počtu (ks/kpl).
+- Dokončovací práce koupelna/WC: 1 ks za každou koupelnu/WC. Elektro a napínané stropy: m² podlahy.
+  TZB voda: 1 kpl. Režie (doprava, likvidace odpadu): vždy 1 kpl. Statika jen u zásahů do nosných konstrukcí.
 
-ROZSAH PRACÍ (scope) řídí, KTERÉ díly zahrneš:
-- "kompletni" = kompletní rekonstrukce: demontáže, bourání, nové rozvody elektro i voda,
-  zdění/příčky dle potřeby, omítky, obklady, podlahy, malby, sanitární sestavy, kuchyně,
-  dveře, režie. Vše od základu.
-- "castecna" = částečná: bez demontáže rozvodů a bourání nosných konstrukcí; nové povrchy,
-  podlahy, obklady, malby, výměna sanity/dveří dle zadání. Vynech demontáž elektro/vody,
-  napínané stropy obvykle ne.
-- "dokoncovaci" = dokončovací/kosmetické: hlavně malby, penetrace, podlahy (vinyl, lišty),
-  drobné opravy. Žádné bourání, rozvody ani obklady, pokud klient výslovně nechce.
+ROZSAH PRACÍ (scope):
+- "kompletni" = vše od základu (demontáže, rozvody elektro+voda, zdění, omítky, obklady, podlahy,
+  malby, sanita, kuchyně, dveře, režie).
+- "castecna" = bez demontáže rozvodů a bourání nosných konstrukcí; nové povrchy, podlahy, obklady,
+  malby, výměna sanity/dveří dle zadání.
+- "dokoncovaci" = hlavně malby, penetrace, podlahy, drobné opravy. Žádné bourání ani rozvody.
 
-VÝSTUP: zavolej nástroj "predlozit_rozpocet" s polem "lines" (výkaz výměr),
-seznamem "assumptions" (předpoklady, ze kterých jsi vyšel — česky, stručně),
-"estimated_days" (odhad doby realizace ve dnech) a "notes" (poznámky k rozpočtu).
-Buď konkrétní a realistický. Množství zaokrouhluj rozumně.`;
+VÝSTUP: zavolej nástroj "predlozit_rozpocet". Buď konkrétní a realistický.`;
 
 const TAKEOFF_TOOL: Anthropic.Tool = {
   name: "predlozit_rozpocet",
@@ -79,6 +77,16 @@ const TAKEOFF_TOOL: Anthropic.Tool = {
           required: ["quantity"],
         },
       },
+      rooms: {
+        type: "array",
+        description: "Rozpoznané místnosti (hlavně při čtení z půdorysu).",
+        items: {
+          type: "object",
+          properties: { label: { type: "string" }, area_m2: { type: "number" } },
+        },
+      },
+      total_area_m2: { type: "number" },
+      property_type: { type: "string" },
       assumptions: { type: "array", items: { type: "string" } },
       estimated_days: { type: "number" },
       notes: { type: "string" },
@@ -86,6 +94,8 @@ const TAKEOFF_TOOL: Anthropic.Tool = {
     required: ["lines", "estimated_days"],
   },
 };
+
+type ImagePayload = { media_type: string; data: string };
 
 export async function POST(req: NextRequest) {
   try {
@@ -114,6 +124,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
+    const mode = body.mode === "quick" ? "quick" : "manual";
     const {
       property_type = "Byt",
       scope = "kompletni",
@@ -123,26 +134,48 @@ export async function POST(req: NextRequest) {
       fixtures = {},
       margin_percent = 0,
       additional_notes = "",
+      description = "",
+      file = null as ImagePayload | null,
     } = body;
 
     const tierSafe: Tier = ["standard", "premium", "vip"].includes(tier) ? tier : "standard";
 
-    const totalArea =
-      Array.isArray(rooms) && rooms.length
-        ? rooms.reduce((s: number, r: { area_m2?: number }) => s + (Number(r.area_m2) || 0), 0)
-        : Number(body.total_area_m2) || 0;
+    // ── Sestavení uživatelské zprávy (text + případně půdorys) ──
+    const userContent: Anthropic.ContentBlockParam[] = [];
+    let userText: string;
 
-    const roomsDesc =
-      Array.isArray(rooms) && rooms.length
-        ? rooms.map((r: { label?: string; area_m2?: number }) => `  • ${r.label || "Místnost"}: ${r.area_m2 || "?"} m²`).join("\n")
-        : `  • Celková plocha: ${totalArea} m²`;
+    if (mode === "quick") {
+      if (file?.data && file?.media_type) {
+        if (file.media_type === "application/pdf") {
+          userContent.push({ type: "document", source: { type: "base64", media_type: "application/pdf", data: file.data } });
+        } else {
+          userContent.push({
+            type: "image",
+            source: { type: "base64", media_type: file.media_type as "image/png" | "image/jpeg" | "image/webp" | "image/gif", data: file.data },
+          });
+        }
+      }
+      userText = `Sestav kompletní položkový rozpočet rekonstrukce.
+Úroveň provedení (kvalita): ${tierSafe}
+Rozsah prací: ${scope}
+${file?.data ? "V příloze je PŮDORYS — přečti z něj místnosti a plochy.\n" : ""}Popis zakázky od uživatele:
+"${description || "(bez popisu)"}"
 
-    const fixturesDesc = Object.entries(fixtures)
-      .filter(([, v]) => v)
-      .map(([k, v]) => `  • ${k}: ${v}`)
-      .join("\n");
-
-    const userPrompt = `Sestav výkaz výměr pro tuto zakázku:
+Pokud něco není jednoznačné, rozumně to odhadni a uveď v assumptions. Zavolej nástroj predlozit_rozpocet.`;
+    } else {
+      const totalArea =
+        Array.isArray(rooms) && rooms.length
+          ? rooms.reduce((s: number, r: { area_m2?: number }) => s + (Number(r.area_m2) || 0), 0)
+          : Number(body.total_area_m2) || 0;
+      const roomsDesc =
+        Array.isArray(rooms) && rooms.length
+          ? rooms.map((r: { label?: string; area_m2?: number }) => `  • ${r.label || "Místnost"}: ${r.area_m2 || "?"} m²`).join("\n")
+          : `  • Celková plocha: ${totalArea} m²`;
+      const fixturesDesc = Object.entries(fixtures)
+        .filter(([, v]) => v)
+        .map(([k, v]) => `  • ${k}: ${v}`)
+        .join("\n");
+      userText = `Sestav výkaz výměr pro tuto zakázku:
 
 Typ nemovitosti: ${property_type}
 Rozsah prací: ${scope}
@@ -154,16 +187,18 @@ ${fixturesDesc ? `Vybavení / požadavky:\n${fixturesDesc}\n` : ""}${additional_
 Celková podlahová plocha: ${totalArea} m².
 
 Zavolej nástroj predlozit_rozpocet s kompletním výkazem výměr.`;
+    }
+
+    userContent.push({ type: "text", text: userText });
 
     const client = new Anthropic({ apiKey });
-
     const message = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 8000,
       system: SYSTEM_PROMPT.replace("{{CATALOG}}", catalogForPrompt()),
       tools: [TAKEOFF_TOOL],
       tool_choice: { type: "tool", name: "predlozit_rozpocet" },
-      messages: [{ role: "user", content: userPrompt }],
+      messages: [{ role: "user", content: userContent }],
     });
 
     const toolUse = message.content.find((c) => c.type === "tool_use");
@@ -173,6 +208,9 @@ Zavolej nástroj predlozit_rozpocet s kompletním výkazem výměr.`;
 
     const takeoff = toolUse.input as {
       lines: TakeoffLine[];
+      rooms?: { label: string; area_m2: number }[];
+      total_area_m2?: number;
+      property_type?: string;
       assumptions?: string[];
       estimated_days?: number;
       notes?: string;
@@ -182,25 +220,31 @@ Zavolej nástroj predlozit_rozpocet s kompletním výkazem výměr.`;
     const priced = priceBudget(lines, tierSafe, Number(margin_percent) || 0);
     priced.items = sortByDil(priced.items);
 
+    const resolvedRooms = mode === "quick" ? (takeoff.rooms || []) : rooms;
+    const resolvedType = mode === "quick" ? (takeoff.property_type || "Rekonstrukce") : property_type;
+    const resolvedArea =
+      takeoff.total_area_m2 ||
+      (Array.isArray(resolvedRooms) ? resolvedRooms.reduce((s: number, r: { area_m2?: number }) => s + (Number(r.area_m2) || 0), 0) : 0);
+
     return NextResponse.json({
       success: true,
       budget: {
         ...priced,
         scope,
-        property_type,
+        property_type: resolvedType,
         estimated_days: takeoff.estimated_days || null,
         assumptions: takeoff.assumptions || [],
         notes: takeoff.notes || "",
       },
       params: {
-        property_type,
+        property_type: resolvedType,
         scope,
         quality_level: tierSafe,
-        area_m2: totalArea,
-        rooms,
+        area_m2: resolvedArea,
+        rooms: resolvedRooms,
         fixtures,
         margin_percent: Number(margin_percent) || 0,
-        additional_notes,
+        additional_notes: description || additional_notes,
       },
     });
   } catch (error) {
