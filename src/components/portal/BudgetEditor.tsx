@@ -259,7 +259,7 @@ export default function BudgetEditor({
           <span style={{ textAlign: "right" }}>{fmt(totals.margin_amount)} Kč</span>
           <span style={{ color: "var(--muted)" }}>Celkem bez DPH</span>
           <span style={{ textAlign: "right", fontWeight: 600 }}>{fmt(totals.total_net)} Kč</span>
-          <span style={{ color: "var(--muted)" }}>DPH 21 %</span>
+          <span style={{ color: "var(--muted)" }}>DPH 12 %</span>
           <span style={{ textAlign: "right" }}>{fmt(totals.dph)} Kč</span>
           <span style={{ fontFamily: "var(--ff-head)", fontSize: "1.15rem", color: "var(--gold)", borderTop: "1px solid var(--border)", paddingTop: "0.5rem" }}>CELKEM s DPH</span>
           <span style={{ fontFamily: "var(--ff-head)", fontSize: "1.15rem", color: "var(--gold)", textAlign: "right", borderTop: "1px solid var(--border)", paddingTop: "0.5rem" }}>{fmt(totals.total_gross)} Kč</span>

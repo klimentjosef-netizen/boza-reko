@@ -177,7 +177,8 @@ export const PRICEBOOK_BY_KEY: Record<string, PriceItem> = Object.fromEntries(
   PRICEBOOK.map((i) => [i.key, i])
 );
 
-export const DPH_RATE = 0.21;
+// Snížená sazba DPH 12 % — stavební a montážní práce na stavbách pro bydlení
+export const DPH_RATE = 0.12;
 
 /* ──────────────────────────────────────────────────────────────────
  * Oceňovací engine
