@@ -52,7 +52,7 @@ export default async function ProjectsPage() {
             {profile.role === "client" ? "Vaše rekonstrukce" : "Všechny rekonstrukce"}
           </p>
         </div>
-        {(profile.role === "owner" || profile.role === "estimator") && (
+        {profile.role === "owner" && (
           <a
             href="/portal/projekty/novy"
             style={{

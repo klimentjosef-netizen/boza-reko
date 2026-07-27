@@ -26,6 +26,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Chybí povinná pole" }, { status: 400 });
     }
 
+    // Přes appku lze založit jen pracovníka nebo klienta — nikdy majitele.
+    if (!["worker", "client"].includes(role)) {
+      return NextResponse.json({ error: "Lze založit jen roli pracovník nebo klient." }, { status: 400 });
+    }
+
     // Create user with admin client (bypasses email confirmation)
     const admin = createAdminClient();
     const { data: newUser, error: createError } = await admin.auth.admin.createUser({

@@ -40,6 +40,21 @@ const labelStyle: React.CSSProperties = {
   fontWeight: 500,
 };
 
+const CATEGORY_LABELS: Record<string, string> = {
+  material: "Materiál",
+  labor: "Práce",
+  subcontractor: "Subdodavatel",
+  client_payment: "Platba klienta",
+  overhead: "Režie",
+  other: "Ostatní",
+};
+
+const filterInput: React.CSSProperties = {
+  background: "#fff", border: "1px solid var(--border)", borderRadius: "2px",
+  padding: "0.4rem 0.6rem", fontSize: "0.8rem", color: "var(--text)",
+  fontFamily: "var(--ff-body)", outline: "none",
+};
+
 export default function CashflowView({
   projects,
   entries: initialEntries,
@@ -53,12 +68,35 @@ export default function CashflowView({
   const [filterProject, setFilterProject] = useState("all");
   const [editing, setEditing] = useState<Entry | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [filterType, setFilterType] = useState<"all" | "income" | "expense">("all");
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [search, setSearch] = useState("");
 
   const projectIdOf = (e: Entry) => e.project?.id || e.project_id || "none";
 
-  const entries = filterProject === "all"
-    ? initialEntries
-    : initialEntries.filter((e) => projectIdOf(e) === filterProject);
+  const entries = initialEntries.filter((e) => {
+    if (filterProject !== "all" && projectIdOf(e) !== filterProject) return false;
+    if (filterType !== "all" && e.type !== filterType) return false;
+    if (filterCategory !== "all" && (e.category || "") !== filterCategory) return false;
+    if (dateFrom && e.date < dateFrom) return false;
+    if (dateTo && e.date > dateTo) return false;
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      const hay = `${e.description} ${e.invoice_number || ""}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const usedCategories = Array.from(new Set(initialEntries.map((e) => e.category).filter(Boolean))) as string[];
+  const anyFilterActive =
+    filterProject !== "all" || filterType !== "all" || filterCategory !== "all" || !!dateFrom || !!dateTo || !!search.trim();
+  function resetFilters() {
+    setFilterProject("all"); setFilterType("all"); setFilterCategory("all");
+    setDateFrom(""); setDateTo(""); setSearch("");
+  }
 
   const totalIncome = entries.filter((e) => e.type === "income").reduce((s, e) => s + Number(e.amount), 0);
   const totalExpense = entries.filter((e) => e.type === "expense").reduce((s, e) => s + Number(e.amount), 0);
@@ -183,6 +221,34 @@ export default function CashflowView({
             + Nový záznam
           </button>
         </div>
+      </div>
+
+      {/* Filtry */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", alignItems: "center", marginBottom: "1.5rem" }}>
+        <select value={filterType} onChange={(e) => setFilterType(e.target.value as "all" | "income" | "expense")} style={{ ...filterInput, cursor: "pointer" }} title="Typ">
+          <option value="all">Příjmy i výdaje</option>
+          <option value="income">Jen příjmy</option>
+          <option value="expense">Jen výdaje</option>
+        </select>
+        <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} style={{ ...filterInput, cursor: "pointer" }} title="Kategorie">
+          <option value="all">Všechny kategorie</option>
+          {usedCategories.map((c) => (
+            <option key={c} value={c}>{CATEGORY_LABELS[c] || c}</option>
+          ))}
+        </select>
+        <label style={{ fontSize: "0.75rem", color: "var(--muted)" }}>Od</label>
+        <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={filterInput} />
+        <label style={{ fontSize: "0.75rem", color: "var(--muted)" }}>Do</label>
+        <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} style={filterInput} />
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Hledat v popisu / faktuře…" style={{ ...filterInput, flex: "1 1 180px", minWidth: "140px" }} />
+        {anyFilterActive && (
+          <button onClick={resetFilters} style={{ ...filterInput, cursor: "pointer", color: "var(--muted)" }} title="Zrušit filtry">
+            ✕ Zrušit filtry
+          </button>
+        )}
+        <span style={{ fontSize: "0.75rem", color: "var(--muted)", marginLeft: "auto" }}>
+          {entries.length} {entries.length === 1 ? "záznam" : entries.length >= 2 && entries.length <= 4 ? "záznamy" : "záznamů"}
+        </span>
       </div>
 
       {/* Summary cards */}
@@ -430,7 +496,7 @@ export default function CashflowView({
                     {entry.project?.name || "—"}
                   </td>
                   <td data-label="Kategorie" style={{ padding: "0.6rem 1rem", color: "var(--muted)" }}>
-                    {entry.category || "—"}
+                    {entry.category ? CATEGORY_LABELS[entry.category] || entry.category : "—"}
                   </td>
                   <td
                     data-label="Částka"

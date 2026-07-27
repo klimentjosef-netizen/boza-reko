@@ -276,6 +276,22 @@ export function priceBudget(
   return { tier, items, totals: sumItems(items, marginPercent) };
 }
 
+/**
+ * Vytvoř KLIENTSKOU verzi položek — marži zapečeme přímo do jednotkových cen.
+ * Klient tak nikdy nevidí naše nákladové ceny (interní rozpočet), jen konečnou cenu.
+ * Vrácené položky mají margin=0 (marže už je v cenách), takže se dál počítají 1:1.
+ */
+export function markupItems(items: PricedItem[], marginPercent = 0): PricedItem[] {
+  const f = 1 + (marginPercent || 0) / 100;
+  return items.map((it) => {
+    const work_price = Math.round(it.work_price * f);
+    const material_price = Math.round(it.material_price * f);
+    const work_total = Math.round(work_price * it.quantity);
+    const material_total = Math.round(material_price * it.quantity);
+    return { ...it, work_price, material_price, work_total, material_total, total: work_total + material_total };
+  });
+}
+
 /** Sečti už oceněné položky (po ruční editaci). */
 export function sumItems(items: PricedItem[], marginPercent = 0): BudgetTotals {
   const work_net = items.reduce((s, i) => s + i.work_total, 0);

@@ -12,7 +12,7 @@ type Message = {
 };
 
 const ROLE_LABELS: Record<string, string> = {
-  owner: "Majitel", worker: "Řemeslník", client: "Klient", estimator: "Rozpočtář",
+  owner: "Majitel", worker: "Řemeslník", client: "Klient",
 };
 
 export default function ProjectChat({

@@ -54,6 +54,12 @@ type Member = {
 
 type Person = { id: string; full_name: string; role: string };
 
+type BudgetCard = {
+  id: string; name: string; status: string; quality_level: string | null;
+  margin_percent: number | null; items: PricedItem[];
+  total_net: number | null; total_gross: number | null; notes: string | null;
+};
+
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   draft: { label: "Návrh", color: "#7a7570" },
   offer: { label: "Nabídka", color: "#a67c2a" },
@@ -72,7 +78,8 @@ export default function ProjectDetail({
   profileId,
   workers = [],
   clients = [],
-  budget = null,
+  clientBudget = null,
+  internalBudget = null,
 }: {
   project: Project;
   milestones: Milestone[];
@@ -82,11 +89,8 @@ export default function ProjectDetail({
   profileId: string;
   workers?: Person[];
   clients?: Person[];
-  budget?: {
-    id: string; name: string; status: string; quality_level: string | null;
-    margin_percent: number | null; items: PricedItem[];
-    total_net: number | null; total_gross: number | null; notes: string | null;
-  } | null;
+  clientBudget?: BudgetCard | null;
+  internalBudget?: BudgetCard | null;
 }) {
   const status = STATUS_LABELS[project.status] || { label: project.status, color: "#7a7570" };
 
@@ -132,13 +136,17 @@ export default function ProjectDetail({
           {/* Komunikace */}
           <ProjectChat projectId={project.id} profileId={profileId} />
 
-          {/* Rozpočet */}
-          {budget && <ProjectBudgetCard budget={budget} />}
+          {/* Interní rozpočet — jen majitel (RLS + guard). Klient/pracovník ho nikdy nevidí. */}
+          {userRole === "owner" && internalBudget && (
+            <ProjectBudgetCard budget={internalBudget} title="🔒 INTERNÍ ROZPOČET · naše náklady" locked />
+          )}
+          {/* Klientský rozpočet */}
+          {clientBudget && <ProjectBudgetCard budget={clientBudget} title="📋 ROZPOČET PRO KLIENTA" />}
           {userRole === "owner" && (
             <div
               style={{
                 marginBottom: "1.5rem",
-                ...(budget
+                ...(clientBudget || internalBudget
                   ? {}
                   : {
                       background: "var(--card)",
@@ -149,7 +157,7 @@ export default function ProjectDetail({
                     }),
               }}
             >
-              {!budget && (
+              {!(clientBudget || internalBudget) && (
                 <p style={{ color: "var(--muted)", fontSize: "0.85rem", marginBottom: "0.75rem" }}>
                   Zakázka zatím nemá rozpočet.
                 </p>
@@ -158,9 +166,9 @@ export default function ProjectDetail({
                 href={`/portal/bozacek?project=${project.id}&name=${encodeURIComponent(project.name)}`}
                 style={{
                   display: "inline-block",
-                  background: budget ? "none" : "var(--gold)",
-                  color: budget ? "var(--gold)" : "#fff",
-                  border: budget ? "1px solid var(--border)" : "none",
+                  background: clientBudget || internalBudget ? "none" : "var(--gold)",
+                  color: clientBudget || internalBudget ? "var(--gold)" : "#fff",
+                  border: clientBudget || internalBudget ? "1px solid var(--border)" : "none",
                   borderRadius: "2px",
                   padding: "0.5rem 1rem",
                   fontSize: "0.8rem",
@@ -169,7 +177,7 @@ export default function ProjectDetail({
                   fontFamily: "var(--ff-body)",
                 }}
               >
-                🤖 {budget ? "Přepočítat rozpočet Božáčkem" : "Přidat rozpočet Božáčkem"}
+                🤖 {clientBudget || internalBudget ? "Přepočítat rozpočet Božáčkem" : "Přidat rozpočet Božáčkem"}
               </a>
             </div>
           )}

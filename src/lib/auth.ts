@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
-export type UserRole = "owner" | "worker" | "client" | "estimator";
+export type UserRole = "owner" | "worker" | "client";
 
 export type Profile = {
   id: string;

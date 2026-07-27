@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    if (!profile || !["owner", "estimator"].includes(profile.role)) {
+    if (!profile || profile.role !== "owner") {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

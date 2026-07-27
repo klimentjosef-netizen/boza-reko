@@ -16,14 +16,12 @@ type Project = { id: string; name: string };
 
 const ROLE_LABELS: Record<string, string> = {
   owner: "Majitel",
-  estimator: "Rozpočtář",
   worker: "Pracovník",
   client: "Klient",
 };
 
 const ROLE_COLORS: Record<string, string> = {
   owner: "#a67c2a",
-  estimator: "#2a6a8a",
   worker: "#2a8a4a",
   client: "#7a7570",
 };
@@ -187,9 +185,7 @@ export default function UsersManager({
                 <select name="role" style={{ ...inputStyle, cursor: "pointer" }} required defaultValue="">
                   <option value="" disabled>Vyberte...</option>
                   <option value="worker">Pracovník</option>
-                  <option value="estimator">Rozpočtář</option>
                   <option value="client">Klient</option>
-                  <option value="owner">Majitel</option>
                 </select>
               </div>
               <div>
@@ -301,22 +297,20 @@ export default function UsersManager({
                     {user.phone || "—"}
                   </td>
                   <td data-label="Role" style={{ padding: "0.75rem 1rem" }}>
-                    {editingRole === user.id ? (
+                    {editingRole === user.id && user.role !== "owner" ? (
                       <select
-                        defaultValue={user.role}
+                        defaultValue={user.role === "owner" ? "" : user.role}
                         onChange={(e) => handleRoleChange(user.id, e.target.value)}
                         onBlur={() => setEditingRole(null)}
                         autoFocus
                         style={{ ...inputStyle, width: "auto", padding: "0.3rem 0.5rem", fontSize: "0.8rem" }}
                       >
-                        <option value="owner">Majitel</option>
-                        <option value="estimator">Rozpočtář</option>
                         <option value="worker">Pracovník</option>
                         <option value="client">Klient</option>
                       </select>
                     ) : (
                       <span
-                        onClick={() => setEditingRole(user.id)}
+                        onClick={() => { if (user.role !== "owner") setEditingRole(user.id); }}
                         style={{
                           display: "inline-block",
                           padding: "0.2rem 0.6rem",
@@ -328,9 +322,9 @@ export default function UsersManager({
                           background: `${roleColor}15`,
                           color: roleColor,
                           border: `1px solid ${roleColor}30`,
-                          cursor: "pointer",
+                          cursor: user.role === "owner" ? "default" : "pointer",
                         }}
-                        title="Klikni pro změnu role"
+                        title={user.role === "owner" ? "Roli majitele lze změnit jen v databázi" : "Klikni pro změnu role"}
                       >
                         {ROLE_LABELS[user.role] || user.role}
                       </span>

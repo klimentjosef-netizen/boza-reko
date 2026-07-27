@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import {
-  sumItems, sortByDil, DILY_ORDER,
+  sumItems, sortByDil, DILY_ORDER, markupItems,
   type PricedItem,
 } from "@/lib/pricebook";
 import type { BozacekBudget, BozacekParams } from "@/app/portal/bozacek/page";
@@ -110,21 +110,47 @@ export default function BudgetEditor({
       projectId = project.id;
     }
 
-    const { error: budgetError } = await supabase.from("budgets").insert({
-      project_id: projectId,
-      name: `Rozpočet — ${params.property_type} (${params.quality_level})`,
-      status: "sent",
-      apartment_type: params.property_type,
-      quality_level: params.quality_level,
-      area_m2: params.area_m2 || null,
-      ai_prompt_params: { ...params, assumptions: budget.assumptions, estimated_days: budget.estimated_days },
-      items,
-      total_net: totals.total_net,
-      total_gross: totals.total_gross,
-      margin_percent: margin,
-      notes: budget.notes || null,
-      created_by: user?.id || null,
-    });
+    // DVA rozpočty: interní (naše náklady, jen majitel) + klientský (marže zapečená v cenách).
+    const aiParams = { ...params, assumptions: budget.assumptions, estimated_days: budget.estimated_days };
+    const clientItems = markupItems(items, margin);
+    const clientTotals = sumItems(clientItems, 0);
+
+    const { error: budgetError } = await supabase.from("budgets").insert([
+      {
+        // INTERNÍ — vidí jen majitel (RLS). Náklady (items v našich cenách) + marže + cena pro klienta.
+        project_id: projectId,
+        audience: "internal",
+        name: `Interní rozpočet — ${params.property_type} (${params.quality_level})`,
+        status: "approved",
+        apartment_type: params.property_type,
+        quality_level: params.quality_level,
+        area_m2: params.area_m2 || null,
+        ai_prompt_params: aiParams,
+        items,
+        total_net: totals.total_net,
+        total_gross: totals.total_gross,
+        margin_percent: margin,
+        notes: budget.notes || null,
+        created_by: user?.id || null,
+      },
+      {
+        // KLIENTSKÝ — marže je zapečená přímo v cenách položek (margin_percent = 0), aby klient nikdy neviděl naše náklady.
+        project_id: projectId,
+        audience: "client",
+        name: `Rozpočet — ${params.property_type} (${params.quality_level})`,
+        status: "sent",
+        apartment_type: params.property_type,
+        quality_level: params.quality_level,
+        area_m2: params.area_m2 || null,
+        ai_prompt_params: aiParams,
+        items: clientItems,
+        total_net: clientTotals.total_net,
+        total_gross: clientTotals.total_gross,
+        margin_percent: 0,
+        notes: budget.notes || null,
+        created_by: user?.id || null,
+      },
+    ]);
 
     if (budgetError) {
       alert((targetProject ? "Zakázka nalezena" : "Projekt vytvořen") + ", ale rozpočet se neuložil: " + budgetError.message);
@@ -289,6 +315,17 @@ export default function BudgetEditor({
           <span style={{ textAlign: "right" }}>{fmt(totals.dph)} Kč</span>
           <span style={{ fontFamily: "var(--ff-head)", fontSize: "1.15rem", color: "var(--gold)", borderTop: "1px solid var(--border)", paddingTop: "0.5rem" }}>CELKEM s DPH</span>
           <span style={{ fontFamily: "var(--ff-head)", fontSize: "1.15rem", color: "var(--gold)", textAlign: "right", borderTop: "1px solid var(--border)", paddingTop: "0.5rem" }}>{fmt(totals.total_gross)} Kč</span>
+        </div>
+
+        {/* Uloží se DVA rozpočty */}
+        <div className="no-print" style={{ marginTop: "1.25rem", padding: "0.9rem 1rem", background: "var(--surface)", borderRadius: "4px", fontSize: "0.82rem", display: "grid", gridTemplateColumns: "1fr auto", gap: "0.35rem 1.5rem" }}>
+          <span style={{ color: "var(--muted)" }}>🔒 Naše náklady (interní, bez DPH)</span>
+          <span style={{ textAlign: "right", fontWeight: 600 }}>{fmt(totals.subtotal_net)} Kč</span>
+          <span style={{ color: "var(--muted)" }}>👤 Cena pro klienta (s DPH)</span>
+          <span style={{ textAlign: "right", fontWeight: 600, color: "var(--gold)" }}>{fmt(totals.total_gross)} Kč</span>
+          <span style={{ gridColumn: "1 / -1", color: "var(--muted)", fontSize: "0.72rem", marginTop: "0.25rem" }}>
+            Uloží se dva rozpočty: interní (naše náklady) vidí jen majitel, klientský (marže v cenách) vidí i klient.
+          </span>
         </div>
 
         <div className="no-print" style={{ display: "flex", justifyContent: "flex-end", marginTop: "1.5rem" }}>

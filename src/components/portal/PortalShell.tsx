@@ -14,11 +14,10 @@ type NavItem = {
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "Přehled", href: "/portal", icon: "📊", roles: ["owner", "worker", "client", "estimator"] },
+  { label: "Přehled", href: "/portal", icon: "📊", roles: ["owner", "worker", "client"] },
   { label: "Poptávky", href: "/portal/poptavky", icon: "📩", roles: ["owner"] },
   { label: "Projekty", href: "/portal/projekty", icon: "🏗️", roles: ["owner", "worker", "client"] },
-  { label: "Zprávy", href: "/portal/zpravy", icon: "💬", roles: ["owner", "worker", "client", "estimator"] },
-  { label: "Božáček", href: "/portal/bozacek", icon: "🤖", roles: ["owner", "estimator"] },
+  { label: "Božáček", href: "/portal/bozacek", icon: "🤖", roles: ["owner"] },
   { label: "Cashflow", href: "/portal/cashflow", icon: "💰", roles: ["owner"] },
   { label: "Reference", href: "/portal/reference", icon: "🏆", roles: ["owner"] },
   { label: "Uživatelé", href: "/portal/uzivatele", icon: "👥", roles: ["owner"] },
@@ -28,7 +27,6 @@ const ROLE_LABELS: Record<string, string> = {
   owner: "Majitel",
   worker: "Řemeslník",
   client: "Klient",
-  estimator: "Rozpočtář",
 };
 
 export default function PortalShell({

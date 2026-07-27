@@ -27,7 +27,7 @@ export default async function PortalDashboard() {
       supabase.from("projects").select("*", { count: "exact", head: true }),
       supabase.from("projects").select("*", { count: "exact", head: true }).eq("status", "active"),
       supabase.from("leads").select("*", { count: "exact", head: true }).eq("status", "new"),
-      supabase.from("budgets").select("*", { count: "exact", head: true }).eq("status", "review"),
+      supabase.from("budgets").select("*", { count: "exact", head: true }).eq("audience", "client"),
       supabase.from("projects").select("id, name, status, type, updated_at").order("updated_at", { ascending: false }).limit(5),
     ]);
     projectCount = pRes.count || 0;
@@ -50,13 +50,6 @@ export default async function PortalDashboard() {
       .eq("profile_id", profile.id);
     recentProjects = (data || []).map((d) => d.project).filter(Boolean);
     projectCount = recentProjects.length;
-  } else if (profile.role === "estimator") {
-    const { data } = await supabase
-      .from("budgets")
-      .select("id, name, status, total_gross, created_at, project:projects(name)")
-      .eq("status", "review")
-      .order("created_at", { ascending: false });
-    budgetCount = (data || []).length;
   }
 
   const statCards = profile.role === "owner"
@@ -64,7 +57,7 @@ export default async function PortalDashboard() {
         { label: "Projekty celkem", value: projectCount, icon: "🏗️", href: "/portal/projekty" },
         { label: "Aktivní", value: activeCount, icon: "⚡", href: "/portal/projekty" },
         { label: "Nové poptávky", value: leadsCount, icon: "📩", href: "/portal/poptavky" },
-        { label: "Rozpočty ke kontrole", value: budgetCount, icon: "📋", href: "/portal/bozacek" },
+        { label: "Klientské rozpočty", value: budgetCount, icon: "📋", href: "/portal/projekty" },
       ]
     : profile.role === "client"
     ? [
@@ -74,9 +67,7 @@ export default async function PortalDashboard() {
     ? [
         { label: "Přiřazené projekty", value: projectCount, icon: "🏗️", href: "/portal/projekty" },
       ]
-    : [
-        { label: "Rozpočty ke kontrole", value: budgetCount, icon: "📋", href: "/portal/bozacek" },
-      ];
+    : [];
 
   return (
     <div>

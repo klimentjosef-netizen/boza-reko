@@ -62,7 +62,7 @@ export default function PortalSection() {
           {
             icon: "🤖",
             title: "AI ROZPOČET",
-            desc: "Náš AI Božáček vytvoří detailní rozpočet za minuty. Rozpočtář ho zkontroluje a vy schvalujete.",
+            desc: "Náš AI Božáček vytvoří detailní rozpočet za minuty podle reálného ceníku firmy.",
           },
           {
             icon: "💬",

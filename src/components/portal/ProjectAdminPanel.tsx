@@ -46,6 +46,7 @@ export default function ProjectAdminPanel({
   const [team, setTeam] = useState<Member[]>(members);
   const [addWorker, setAddWorker] = useState("");
   const [savedMsg, setSavedMsg] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   async function saveField(patch: Record<string, unknown>, msg = "Uloženo") {
     const { error } = await supabase.from("projects").update(patch).eq("id", project.id);
@@ -68,6 +69,19 @@ export default function ProjectAdminPanel({
   async function removeMember(m: Member) {
     setTeam((p) => p.filter((x) => x.id !== m.id));
     await supabase.from("project_members").delete().eq("id", m.id);
+  }
+
+  async function deleteProject() {
+    if (!confirm("Opravdu SMAZAT celou zakázku? Smažou se i rozpočty, milníky, fotky, zprávy a cashflow záznamy této zakázky. Nelze vzít zpět.")) return;
+    setDeleting(true);
+    const { error } = await supabase.from("projects").delete().eq("id", project.id);
+    if (error) {
+      setDeleting(false);
+      alert("Smazání se nezdařilo: " + error.message);
+      return;
+    }
+    router.push("/portal/projekty");
+    router.refresh();
   }
 
   const teamIds = new Set(team.map((m) => m.profile_id));
@@ -126,6 +140,28 @@ export default function ProjectAdminPanel({
             <button onClick={assignWorker} disabled={!addWorker} style={{ background: "var(--gold)", color: "#fff", border: "none", borderRadius: "2px", padding: "0 0.9rem", fontSize: "0.8rem", cursor: "pointer", fontFamily: "var(--ff-body)" }}>Přidat</button>
           </div>
         )}
+      </div>
+
+      {/* Nebezpečná zóna — smazání zakázky */}
+      <div style={{ marginTop: "1.25rem", paddingTop: "1rem", borderTop: "1px solid var(--border)" }}>
+        <button
+          onClick={deleteProject}
+          disabled={deleting}
+          style={{
+            width: "100%",
+            background: "none",
+            border: "1px solid #d8b0a4",
+            color: "#9a4a2a",
+            borderRadius: "2px",
+            padding: "0.5rem 0.9rem",
+            fontSize: "0.8rem",
+            fontWeight: 500,
+            cursor: deleting ? "wait" : "pointer",
+            fontFamily: "var(--ff-body)",
+          }}
+        >
+          {deleting ? "Mažu…" : "🗑 Smazat zakázku"}
+        </button>
       </div>
 
       <style>{`
