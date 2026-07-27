@@ -134,6 +134,45 @@ export default function ProjectDetail({
 
           {/* Rozpočet */}
           {budget && <ProjectBudgetCard budget={budget} />}
+          {userRole === "owner" && (
+            <div
+              style={{
+                marginBottom: "1.5rem",
+                ...(budget
+                  ? {}
+                  : {
+                      background: "var(--card)",
+                      border: "1px dashed var(--border)",
+                      borderRadius: "4px",
+                      padding: "1.25rem",
+                      textAlign: "center" as const,
+                    }),
+              }}
+            >
+              {!budget && (
+                <p style={{ color: "var(--muted)", fontSize: "0.85rem", marginBottom: "0.75rem" }}>
+                  Zakázka zatím nemá rozpočet.
+                </p>
+              )}
+              <a
+                href={`/portal/bozacek?project=${project.id}&name=${encodeURIComponent(project.name)}`}
+                style={{
+                  display: "inline-block",
+                  background: budget ? "none" : "var(--gold)",
+                  color: budget ? "var(--gold)" : "#fff",
+                  border: budget ? "1px solid var(--border)" : "none",
+                  borderRadius: "2px",
+                  padding: "0.5rem 1rem",
+                  fontSize: "0.8rem",
+                  fontWeight: 500,
+                  textDecoration: "none",
+                  fontFamily: "var(--ff-body)",
+                }}
+              >
+                🤖 {budget ? "Přepočítat rozpočet Božáčkem" : "Přidat rozpočet Božáčkem"}
+              </a>
+            </div>
+          )}
 
           {/* Milníky */}
           <MilestonesPanel

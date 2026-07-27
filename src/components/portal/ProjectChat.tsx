@@ -55,7 +55,15 @@ export default function ProjectChat({
         () => load()
       )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+    // Fallback pro případ, že realtime nedoběhne: obnov při návratu na záložku/okno
+    const onVisible = () => { if (document.visibilityState === "visible") load(); };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    return () => {
+      supabase.removeChannel(channel);
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
   }, [projectId, supabase, load]);
 
   useEffect(() => {
@@ -68,15 +76,21 @@ export default function ProjectChat({
     if (!body) return;
     setSending(true);
     setInput("");
-    const { error } = await supabase.from("project_messages").insert({
-      project_id: projectId,
-      sender_id: profileId,
-      body,
-    });
+    const { data: inserted, error } = await supabase
+      .from("project_messages")
+      .insert({ project_id: projectId, sender_id: profileId, body })
+      .select("*, sender:profiles(full_name, role)")
+      .single();
     if (error) {
       setInput(body);
       alert("Zprávu se nepodařilo odeslat: " + error.message);
     } else {
+      // Optimistické zobrazení — zpráva naskočí hned, i kdyby realtime nedoběhl
+      if (inserted) {
+        setMessages((prev) =>
+          prev.some((m) => m.id === (inserted as Message).id) ? prev : [...prev, inserted as Message]
+        );
+      }
       fetch("/api/push/notify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

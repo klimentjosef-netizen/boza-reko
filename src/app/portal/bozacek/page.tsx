@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import BudgetEditor from "@/components/portal/BudgetEditor";
 import { DISPOSITIONS, ROOM_TYPES, type RoomPreset } from "@/lib/dispositions";
 import type { PricedBudget } from "@/lib/pricebook";
@@ -74,6 +74,14 @@ export default function BozacekPage() {
   const [error, setError] = useState("");
   const [result, setResult] = useState<BozacekBudget | null>(null);
   const [params, setParams] = useState<BozacekParams | null>(null);
+
+  // Cílová zakázka (rozpočet pro EXISTUJÍCÍ projekt) — z URL ?project=<id>&name=<název>
+  const [targetProject, setTargetProject] = useState<{ id: string; name: string } | null>(null);
+  useEffect(() => {
+    const sp = new URLSearchParams(window.location.search);
+    const id = sp.get("project");
+    if (id) setTargetProject({ id, name: sp.get("name") || "vybraná zakázka" });
+  }, []);
 
   // společné
   const [scope, setScope] = useState("kompletni");
@@ -155,7 +163,7 @@ export default function BozacekPage() {
   }
 
   if (result && params) {
-    return <BudgetEditor budget={result} params={params} onBack={() => { setResult(null); setParams(null); }} />;
+    return <BudgetEditor budget={result} params={params} targetProject={targetProject} onBack={() => { setResult(null); setParams(null); }} />;
   }
 
   return (
@@ -166,6 +174,13 @@ export default function BozacekPage() {
           Položkový rozpočet (práce + materiál) podle reálného ceníku firmy.
         </p>
       </div>
+
+      {targetProject && (
+        <div style={{ background: "rgba(166,124,42,0.1)", border: "1px solid var(--gold)", borderRadius: "4px", padding: "0.75rem 1rem", marginBottom: "1.25rem", fontSize: "0.85rem", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+          <span>📌 Vytváříte rozpočet pro zakázku <strong>{targetProject.name}</strong>. Po uložení nahradí její stávající rozpočet.</span>
+          <a href="/portal/bozacek" style={{ color: "var(--muted)", fontSize: "0.78rem" }}>Zrušit</a>
+        </div>
+      )}
 
       {/* Přepínač režimu */}
       <div style={{ display: "inline-flex", background: "var(--card)", border: "1px solid var(--border)", borderRadius: "4px", overflow: "hidden", marginBottom: "1.25rem" }}>

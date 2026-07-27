@@ -17,10 +17,12 @@ export default function BudgetEditor({
   budget,
   params,
   onBack,
+  targetProject = null,
 }: {
   budget: BozacekBudget;
   params: BozacekParams;
   onBack: () => void;
+  targetProject?: { id: string; name: string } | null;
 }) {
   const router = useRouter();
   const [items, setItems] = useState<PricedItem[]>(budget.items);
@@ -69,30 +71,49 @@ export default function BudgetEditor({
       : /kuchyn/i.test(params.property_type) ? "kuchyn"
       : /dům|dum/i.test(params.property_type) ? "dum" : "byt";
 
-    const { data: project, error: projectError } = await supabase
-      .from("projects")
-      .insert({
-        name: `${params.property_type} — ${params.area_m2} m²`,
-        type,
-        status: "offer",
-        budget_net: totals.total_net,
-        budget_gross: totals.total_gross,
-        area_m2: params.area_m2 || null,
-        description: params.additional_notes || null,
-      })
-      .select("id")
-      .single();
+    let projectId: string;
 
-    if (projectError || !project) {
-      alert("Nepodařilo se vytvořit projekt: " + (projectError?.message || ""));
-      setSaving(false);
-      return;
+    if (targetProject) {
+      // Připnout rozpočet k EXISTUJÍCÍ zakázce (nahradí stávající rozpočet)
+      projectId = targetProject.id;
+      await supabase.from("budgets").delete().eq("project_id", projectId);
+      const { error: updError } = await supabase
+        .from("projects")
+        .update({ budget_net: totals.total_net, budget_gross: totals.total_gross })
+        .eq("id", projectId);
+      if (updError) {
+        alert("Nepodařilo se aktualizovat zakázku: " + updError.message);
+        setSaving(false);
+        return;
+      }
+    } else {
+      // Založit NOVOU zakázku
+      const { data: project, error: projectError } = await supabase
+        .from("projects")
+        .insert({
+          name: `${params.property_type} — ${params.area_m2} m²`,
+          type,
+          status: "offer",
+          budget_net: totals.total_net,
+          budget_gross: totals.total_gross,
+          area_m2: params.area_m2 || null,
+          description: params.additional_notes || null,
+        })
+        .select("id")
+        .single();
+
+      if (projectError || !project) {
+        alert("Nepodařilo se vytvořit projekt: " + (projectError?.message || ""));
+        setSaving(false);
+        return;
+      }
+      projectId = project.id;
     }
 
     const { error: budgetError } = await supabase.from("budgets").insert({
-      project_id: project.id,
+      project_id: projectId,
       name: `Rozpočet — ${params.property_type} (${params.quality_level})`,
-      status: "review",
+      status: "sent",
       apartment_type: params.property_type,
       quality_level: params.quality_level,
       area_m2: params.area_m2 || null,
@@ -106,18 +127,18 @@ export default function BudgetEditor({
     });
 
     if (budgetError) {
-      alert("Projekt vytvořen, ale rozpočet se neuložil: " + budgetError.message);
+      alert((targetProject ? "Zakázka nalezena" : "Projekt vytvořen") + ", ale rozpočet se neuložil: " + budgetError.message);
       setSaving(false);
       return;
     }
 
-    // Automatické milníky z Božáčka (v logickém pořadí) — rozprostřené do termínů
-    if (budget.milestones?.length) {
+    // Automatické milníky z Božáčka — jen u nově zakládané zakázky (u existující je neduplikujeme)
+    if (!targetProject && budget.milestones?.length) {
       const totalDays = budget.estimated_days || 30;
       const per = totalDays / budget.milestones.length;
       const start = Date.now();
       const rows = budget.milestones.map((title, i) => ({
-        project_id: project.id,
+        project_id: projectId,
         title,
         sort_order: i,
         due_date: new Date(start + Math.round(per * (i + 1)) * 86400000).toISOString().slice(0, 10),
@@ -128,11 +149,11 @@ export default function BudgetEditor({
     fetch("/api/push/notify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ project_id: project.id, type: "budget" }),
+      body: JSON.stringify({ project_id: projectId, type: "budget" }),
     }).catch(() => {});
 
     setSaved(true);
-    setTimeout(() => router.push(`/portal/projekty/${project.id}`), 900);
+    setTimeout(() => router.push(`/portal/projekty/${projectId}`), 900);
   }
 
   // seskup dle dílů v daném pořadí
@@ -152,6 +173,11 @@ export default function BudgetEditor({
 
   return (
     <div style={{ maxWidth: "1000px" }}>
+      {targetProject && (
+        <div className="no-print" style={{ background: "rgba(166,124,42,0.1)", border: "1px solid var(--gold)", borderRadius: "4px", padding: "0.75rem 1rem", marginBottom: "1.25rem", fontSize: "0.85rem" }}>
+          📌 Rozpočet se uloží do zakázky <strong>{targetProject.name}</strong> a nahradí její stávající rozpočet.
+        </div>
+      )}
       {/* Header */}
       <div className="no-print" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem", gap: "1rem", flexWrap: "wrap" }}>
         <div>
@@ -268,7 +294,7 @@ export default function BudgetEditor({
         <div className="no-print" style={{ display: "flex", justifyContent: "flex-end", marginTop: "1.5rem" }}>
           <button onClick={saveAsProject} disabled={saving || saved}
             style={{ background: saved ? "#2a8a4a" : "var(--gold)", color: "#fff", padding: "0.8rem 1.8rem", borderRadius: "2px", border: "none", fontSize: "0.9rem", fontWeight: 600, cursor: saving ? "wait" : "pointer", fontFamily: "var(--ff-body)" }}>
-            {saved ? "✓ Uloženo" : saving ? "Ukládám…" : "Uložit jako projekt"}
+            {saved ? "✓ Uloženo" : saving ? "Ukládám…" : targetProject ? "Uložit do zakázky" : "Uložit jako projekt"}
           </button>
         </div>
       </div>

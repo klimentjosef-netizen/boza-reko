@@ -15,7 +15,7 @@ export default async function CashflowPage() {
   // Get cashflow entries
   const { data: entries } = await supabase
     .from("cashflow")
-    .select("*, project:projects(name)")
+    .select("*, project:projects(id, name)")
     .order("date", { ascending: false });
 
   return (
