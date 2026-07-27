@@ -51,6 +51,8 @@ export default function CashflowView({
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [filterProject, setFilterProject] = useState("all");
+  const [editing, setEditing] = useState<Entry | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const projectIdOf = (e: Entry) => e.project?.id || e.project_id || "none";
 
@@ -85,25 +87,57 @@ export default function CashflowView({
       ? "Bez zakázky"
       : projects.find((p) => p.id === filterProject)?.name || "—";
 
-  async function handleAdd(e: React.FormEvent<HTMLFormElement>) {
+  function startEdit(entry: Entry) {
+    setEditing(entry);
+    setShowForm(true);
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function closeForm() {
+    setShowForm(false);
+    setEditing(null);
+  }
+
+  async function handleSave(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSaving(true);
 
     const form = new FormData(e.currentTarget);
     const supabase = createClient();
 
-    await supabase.from("cashflow").insert({
-      project_id: form.get("project_id") || null,
+    const payload = {
+      project_id: (form.get("project_id") as string) || null,
       type: form.get("type"),
       amount: Number(form.get("amount")),
       description: form.get("description"),
-      category: form.get("category") || null,
-      date: form.get("date") || new Date().toISOString().split("T")[0],
-      invoice_number: form.get("invoice_number") || null,
-    });
+      category: (form.get("category") as string) || null,
+      date: (form.get("date") as string) || new Date().toISOString().split("T")[0],
+      invoice_number: (form.get("invoice_number") as string) || null,
+    };
+
+    const { error } = editing
+      ? await supabase.from("cashflow").update(payload).eq("id", editing.id)
+      : await supabase.from("cashflow").insert(payload);
 
     setSaving(false);
-    setShowForm(false);
+    if (error) {
+      alert("Uložení se nezdařilo: " + error.message);
+      return;
+    }
+    closeForm();
+    router.refresh();
+  }
+
+  async function handleDelete(entry: Entry) {
+    if (!confirm(`Smazat záznam „${entry.description}"?`)) return;
+    setDeletingId(entry.id);
+    const supabase = createClient();
+    const { error } = await supabase.from("cashflow").delete().eq("id", entry.id);
+    setDeletingId(null);
+    if (error) {
+      alert("Smazání se nezdařilo: " + error.message);
+      return;
+    }
     router.refresh();
   }
 
@@ -132,7 +166,7 @@ export default function CashflowView({
             <option value="none">Bez zakázky</option>
           </select>
           <button
-            onClick={() => setShowForm(!showForm)}
+            onClick={() => { if (showForm) { closeForm(); } else { setEditing(null); setShowForm(true); } }}
             style={{
               background: "var(--gold)",
               color: "#fff",
@@ -252,28 +286,28 @@ export default function CashflowView({
           }}
         >
           <h3 style={{ fontFamily: "var(--ff-head)", fontSize: "1.1rem", marginBottom: "1rem" }}>
-            NOVÝ ZÁZNAM
+            {editing ? "UPRAVIT ZÁZNAM" : "NOVÝ ZÁZNAM"}
           </h3>
-          <form onSubmit={handleAdd}>
+          <form onSubmit={handleSave} key={editing?.id || "new"}>
             <div className="cf-form-grid4" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "0.75rem", marginBottom: "0.75rem" }}>
               <div>
                 <label style={labelStyle}>Typ *</label>
-                <select name="type" style={{ ...inputStyle, cursor: "pointer" }} required>
+                <select name="type" style={{ ...inputStyle, cursor: "pointer" }} required defaultValue={editing?.type || "expense"}>
                   <option value="expense">Výdaj</option>
                   <option value="income">Příjem</option>
                 </select>
               </div>
               <div>
                 <label style={labelStyle}>Částka (Kč) *</label>
-                <input name="amount" type="number" style={inputStyle} required placeholder="50000" />
+                <input name="amount" type="number" style={inputStyle} required placeholder="50000" defaultValue={editing ? String(editing.amount) : ""} />
               </div>
               <div>
                 <label style={labelStyle}>Datum</label>
-                <input name="date" type="date" style={inputStyle} defaultValue={new Date().toISOString().split("T")[0]} />
+                <input name="date" type="date" style={inputStyle} defaultValue={editing?.date || new Date().toISOString().split("T")[0]} />
               </div>
               <div>
                 <label style={labelStyle}>Projekt</label>
-                <select name="project_id" style={{ ...inputStyle, cursor: "pointer" }}>
+                <select name="project_id" style={{ ...inputStyle, cursor: "pointer" }} defaultValue={editing?.project_id || editing?.project?.id || ""}>
                   <option value="">Bez projektu</option>
                   {projects.map((p) => (
                     <option key={p.id} value={p.id}>{p.name}</option>
@@ -284,11 +318,11 @@ export default function CashflowView({
             <div className="cf-form-grid3" style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "0.75rem", marginBottom: "1rem" }}>
               <div>
                 <label style={labelStyle}>Popis *</label>
-                <input name="description" style={inputStyle} required placeholder="Materiál, práce, platba klienta..." />
+                <input name="description" style={inputStyle} required placeholder="Materiál, práce, platba klienta..." defaultValue={editing?.description || ""} />
               </div>
               <div>
                 <label style={labelStyle}>Kategorie</label>
-                <select name="category" style={{ ...inputStyle, cursor: "pointer" }}>
+                <select name="category" style={{ ...inputStyle, cursor: "pointer" }} defaultValue={editing?.category || ""}>
                   <option value="">—</option>
                   <option value="material">Materiál</option>
                   <option value="labor">Práce</option>
@@ -300,7 +334,7 @@ export default function CashflowView({
               </div>
               <div>
                 <label style={labelStyle}>Č. faktury</label>
-                <input name="invoice_number" style={inputStyle} placeholder="FV-2026001" />
+                <input name="invoice_number" style={inputStyle} placeholder="FV-2026001" defaultValue={editing?.invoice_number || ""} />
               </div>
             </div>
             <div style={{ display: "flex", gap: "0.75rem" }}>
@@ -319,11 +353,11 @@ export default function CashflowView({
                   fontFamily: "var(--ff-body)",
                 }}
               >
-                {saving ? "Ukládám..." : "Uložit"}
+                {saving ? "Ukládám..." : editing ? "Uložit změny" : "Uložit"}
               </button>
               <button
                 type="button"
-                onClick={() => setShowForm(false)}
+                onClick={closeForm}
                 style={{
                   background: "none",
                   border: "1px solid var(--border)",
@@ -360,9 +394,9 @@ export default function CashflowView({
           <table className="rtable" style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", minWidth: "640px" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--border)", background: "var(--surface)" }}>
-                {["Datum", "Popis", "Projekt", "Kategorie", "Částka"].map((h) => (
+                {["Datum", "Popis", "Projekt", "Kategorie", "Částka", ""].map((h, i) => (
                   <th
-                    key={h}
+                    key={h || `col-${i}`}
                     style={{
                       padding: "0.6rem 1rem",
                       textAlign: "left",
@@ -409,6 +443,23 @@ export default function CashflowView({
                   >
                     {entry.type === "income" ? "+" : "−"}
                     {Number(entry.amount).toLocaleString("cs-CZ")} Kč
+                  </td>
+                  <td data-label="Akce" style={{ padding: "0.6rem 1rem", textAlign: "right", whiteSpace: "nowrap" }}>
+                    <button
+                      onClick={() => startEdit(entry)}
+                      title="Upravit"
+                      style={{ background: "none", border: "1px solid var(--border)", borderRadius: "2px", padding: "0.25rem 0.6rem", fontSize: "0.75rem", color: "var(--muted)", cursor: "pointer", fontFamily: "var(--ff-body)", marginRight: "0.4rem" }}
+                    >
+                      Upravit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(entry)}
+                      disabled={deletingId === entry.id}
+                      title="Smazat"
+                      style={{ background: "none", border: "1px solid var(--border)", borderRadius: "2px", padding: "0.25rem 0.55rem", fontSize: "0.85rem", color: "#9a4a2a", cursor: deletingId === entry.id ? "wait" : "pointer", fontFamily: "var(--ff-body)" }}
+                    >
+                      {deletingId === entry.id ? "…" : "×"}
+                    </button>
                   </td>
                 </tr>
               ))}
