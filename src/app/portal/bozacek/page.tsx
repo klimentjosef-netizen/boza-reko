@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import BudgetEditor from "@/components/portal/BudgetEditor";
+import { createClient } from "@/lib/supabase/client";
 import { DISPOSITIONS, ROOM_TYPES, type RoomPreset } from "@/lib/dispositions";
 import type { PricedBudget } from "@/lib/pricebook";
 
@@ -56,16 +57,19 @@ const sectionTitle: React.CSSProperties = {
   fontFamily: "var(--ff-head)", fontSize: "1.05rem", marginBottom: "1rem", letterSpacing: "0.02em",
 };
 
-function fileToBase64(file: File): Promise<{ media_type: string; data: string }> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const res = String(reader.result);
-      resolve({ media_type: file.type || "image/png", data: res.split(",")[1] });
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+/**
+ * Půdorys posíláme přes úložiště, ne v těle requestu — Vercel má limit
+ * na velikost requestu a base64 sken ho snadno přeteče.
+ */
+async function uploadPlan(file: File): Promise<{ file_path: string; media_type: string }> {
+  const supabase = createClient();
+  const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+  const path = `bozacek/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const { error } = await supabase.storage
+    .from("project-photos")
+    .upload(path, file, { contentType: file.type || "image/png", upsert: false });
+  if (error) throw error;
+  return { file_path: path, media_type: file.type || "image/png" };
 }
 
 export default function BozacekPage() {
@@ -129,8 +133,16 @@ export default function BozacekPage() {
       if (!file && !description.trim()) { setError("Nahrajte půdorys nebo napište popis zakázky."); return; }
       payload = { mode: "quick", scope, tier, margin_percent: margin, description };
       if (file) {
-        try { payload.file = await fileToBase64(file); }
-        catch { setError("Nepodařilo se načíst soubor."); return; }
+        setLoading(true);
+        try {
+          const uploaded = await uploadPlan(file);
+          payload.file_path = uploaded.file_path;
+          payload.media_type = uploaded.media_type;
+        } catch {
+          setLoading(false);
+          setError("Nepodařilo se nahrát půdorys do úložiště.");
+          return;
+        }
       }
     } else {
       if (!rooms.length) { setError("Přidejte alespoň jednu místnost."); return; }

@@ -20,11 +20,8 @@ type Reference = {
 };
 
 const TYPES = [
-  { key: "koupelna", label: "Koupelna" },
-  { key: "kuchyn", label: "Kuchyně" },
   { key: "byt", label: "Byt" },
   { key: "dum", label: "Dům" },
-  { key: "svj", label: "SVJ" },
 ];
 
 function slugify(s: string) {
@@ -34,7 +31,7 @@ function slugify(s: string) {
 }
 
 const emptyForm = {
-  title: "", type: "koupelna", description: "", area_m2: "", duration_days: "",
+  title: "", type: "byt", description: "", area_m2: "", duration_days: "",
   location: "", year: String(new Date().getFullYear()), cover_image: "", published: true,
 };
 
