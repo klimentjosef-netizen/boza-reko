@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 const NAV_LINKS = [
-  { label: "Služby", href: "#sluzby" },
-  { label: "Reference", href: "#reference" },
-  { label: "Jak to funguje", href: "#proces" },
-  { label: "Kalkulačka", href: "#kalkulacka" },
-  { label: "Kontakt", href: "#kontakt" },
+  { label: "Jak to funguje", href: "/#proces" },
+  { label: "Reference", href: "/reference" },
+  { label: "Kalkulačka", href: "/#kalkulacka" },
+  { label: "Kontakt", href: "/#kontakt" },
 ];
 
 export default function Nav() {
@@ -32,8 +32,8 @@ export default function Nav() {
       }}
       className="site-nav"
     >
-      <a
-        href="#"
+      <Link
+        href="/"
         style={{
           fontFamily: "var(--ff-head)",
           fontSize: "1.8rem",
@@ -43,11 +43,11 @@ export default function Nav() {
         }}
       >
         BOZA<span style={{ color: "var(--gold)" }}>·</span>REKO
-      </a>
+      </Link>
 
       <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: "2.5rem" }}>
         {NAV_LINKS.map((link) => (
-          <a
+          <Link
             key={link.href}
             href={link.href}
             style={{
@@ -63,12 +63,12 @@ export default function Nav() {
             onMouseLeave={(e) => (e.currentTarget.style.color = "var(--muted)")}
           >
             {link.label}
-          </a>
+          </Link>
         ))}
       </div>
 
-      <a
-        href="#kontakt"
+      <Link
+        href="/#kontakt"
         className="nav-cta"
         style={{
           background: "var(--gold)",
@@ -86,7 +86,7 @@ export default function Nav() {
         onMouseLeave={(e) => (e.currentTarget.style.background = "var(--gold)")}
       >
         Poptávka zdarma
-      </a>
+      </Link>
 
       {/* Mobile menu button */}
       <button
@@ -127,7 +127,7 @@ export default function Nav() {
           }}
         >
           {NAV_LINKS.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               onClick={() => setOpen(false)}
@@ -143,10 +143,10 @@ export default function Nav() {
               }}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
-          <a
-            href="#kontakt"
+          <Link
+            href="/#kontakt"
             onClick={() => setOpen(false)}
             style={{
               background: "var(--gold)",
@@ -163,7 +163,7 @@ export default function Nav() {
             }}
           >
             Poptávka zdarma
-          </a>
+          </Link>
         </div>
       )}
 

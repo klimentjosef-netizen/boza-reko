@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import Anthropic from "@anthropic-ai/sdk";
 import {
   catalogForPrompt,
@@ -110,6 +111,7 @@ const TAKEOFF_TOOL: Anthropic.Tool = {
 type ImagePayload = { media_type: string; data: string };
 
 export async function POST(req: NextRequest) {
+  let uploadedPath: string | null = null;
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -147,8 +149,27 @@ export async function POST(req: NextRequest) {
       margin_percent = 0,
       additional_notes = "",
       description = "",
-      file = null as ImagePayload | null,
+      file_path = null as string | null,
+      media_type = null as string | null,
     } = body;
+
+    // ── Načtení půdorysu z úložiště (obchází limit velikosti requestu Vercelu) ──
+    let file: ImagePayload | null = null;
+    if (mode === "quick" && file_path && media_type) {
+      uploadedPath = file_path;
+      const admin = createAdminClient();
+      const { data: blob, error: dlErr } = await admin.storage
+        .from("project-photos")
+        .download(file_path);
+      if (dlErr || !blob) {
+        return NextResponse.json(
+          { error: "Nepodařilo se načíst nahraný soubor z úložiště." },
+          { status: 502 }
+        );
+      }
+      const buf = Buffer.from(await blob.arrayBuffer());
+      file = { media_type, data: buf.toString("base64") };
+    }
 
     const tierSafe: Tier = ["standard", "premium", "vip"].includes(tier) ? tier : "standard";
 
@@ -265,5 +286,14 @@ Zavolej nástroj predlozit_rozpocet s kompletním výkazem výměr.`;
     console.error("Božáček API error:", error);
     const msg = error instanceof Error ? error.message : "Internal server error";
     return NextResponse.json({ error: `Chyba Božáčka: ${msg}` }, { status: 500 });
+  } finally {
+    // Úklid dočasného nahraného půdorysu z úložiště
+    if (uploadedPath) {
+      try {
+        await createAdminClient().storage.from("project-photos").remove([uploadedPath]);
+      } catch {
+        // úklid je best-effort, případnou chybu ignorujeme
+      }
+    }
   }
 }

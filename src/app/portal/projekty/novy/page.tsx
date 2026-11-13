@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { DPH_RATE } from "@/lib/pricebook";
 
 const inputStyle: React.CSSProperties = {
   background: "#ffffff",
@@ -49,7 +50,7 @@ export default function NewProjectPage() {
       start_date: form.get("start_date") || null,
       budget_net: form.get("budget_net") ? Number(form.get("budget_net")) : null,
       budget_gross: form.get("budget_net")
-        ? Math.round(Number(form.get("budget_net")) * 1.21)
+        ? Math.round(Number(form.get("budget_net")) * (1 + DPH_RATE))
         : null,
     });
 

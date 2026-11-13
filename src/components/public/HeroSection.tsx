@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import HeroFloorplan from "@/components/public/HeroFloorplan";
 
 export default function HeroSection() {
   const [visible, setVisible] = useState(false);
@@ -84,9 +85,21 @@ export default function HeroSection() {
 
       {/* Content */}
       <div
+        className="hero-grid"
         style={{
           position: "relative",
           zIndex: 1,
+          display: "grid",
+          gridTemplateColumns: "minmax(0, 1.05fr) minmax(0, 0.95fr)",
+          alignItems: "center",
+          gap: "3rem",
+          width: "100%",
+          maxWidth: "1360px",
+          margin: "0 auto",
+        }}
+      >
+      <div
+        style={{
           padding: "4rem 5rem",
           maxWidth: "750px",
           width: "100%",
@@ -167,8 +180,8 @@ export default function HeroSection() {
             transition: "opacity 0.6s ease 0.6s, transform 0.6s ease 0.6s",
           }}
         >
-          Koupelny, kuchyně, byty a domy. Rekonstruujeme v Ostravě a okolí.
-          Vlastní řemeslníci, férové ceny, termíny dodržujeme.
+          Kompletní rekonstrukce bytů a domů v Ostravě a okolí. Přebíráme celý byt
+          a předáváme ho hotový. Vlastní řemeslníci, férové ceny, termíny dodržujeme.
         </p>
 
         {/* Buttons */}
@@ -249,17 +262,38 @@ export default function HeroSection() {
         </div>
       </div>
 
+        {/* Animovaný půdorys */}
+        <div
+          className="hero-visual"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            paddingRight: "3rem",
+            opacity: visible ? 1 : 0,
+            transform: visible ? "none" : "translateY(24px)",
+            transition: "opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s",
+          }}
+        >
+          <HeroFloorplan />
+        </div>
+      </div>
+
       <style>{`
         @keyframes heroFloat {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-15px); }
         }
+        @media (max-width: 1100px) {
+          .hero-grid { grid-template-columns: 1fr !important; gap: 0 !important; }
+          .hero-visual { padding: 0 2rem 4rem !important; }
+        }
         @media (max-width: 900px) {
-          .hero-content { padding: 3rem 2rem !important; }
+          .hero-content { padding: 3rem 2rem 2rem !important; }
           .hero-stats { gap: 1.5rem !important; flex-wrap: wrap; }
         }
         @media (max-width: 480px) {
-          .hero-content { padding: 2.5rem 1.25rem !important; }
+          .hero-content { padding: 2.5rem 1.25rem 1.5rem !important; }
+          .hero-visual { padding: 0 1.25rem 3rem !important; }
         }
       `}</style>
     </section>

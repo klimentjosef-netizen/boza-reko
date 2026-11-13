@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer
@@ -14,8 +16,8 @@ export default function Footer() {
       }}
     >
       {/* Logo */}
-      <a
-        href="#"
+      <Link
+        href="/"
         style={{
           fontFamily: "var(--ff-head)",
           fontSize: "1.4rem",
@@ -25,7 +27,7 @@ export default function Footer() {
         }}
       >
         BOZA<span style={{ color: "var(--gold)" }}>·</span>REKO
-      </a>
+      </Link>
 
       {/* Copyright */}
       <div style={{ fontSize: "0.82rem", color: "var(--muted)" }}>
@@ -35,10 +37,10 @@ export default function Footer() {
       {/* Quick links */}
       <div className="footer-links" style={{ display: "flex", gap: "1.5rem" }}>
         {[
-          { label: "Služby", href: "#sluzby" },
-          { label: "Reference", href: "#reference" },
-          { label: "Kalkulačka", href: "#kalkulacka" },
-          { label: "Kontakt", href: "#kontakt" },
+          { label: "Jak to funguje", href: "/#proces" },
+          { label: "Reference", href: "/reference" },
+          { label: "Kalkulačka", href: "/#kalkulacka" },
+          { label: "Kontakt", href: "/#kontakt" },
           { label: "Portál", href: "/login" },
         ].map((link) => (
           <a

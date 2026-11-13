@@ -141,7 +141,8 @@ const DISPOSITIONS: Disposition[] = [
   },
 ];
 
-const SINGLE_ROOM_TYPES = [
+// Místnosti, které lze do dispozice doplnit (byt nemusí odpovídat vzoru)
+const ROOM_TYPES = [
   { key: "koupelna", icon: "🛁", label: "Koupelna", defaultSize: 6 },
   { key: "wc", icon: "🚽", label: "WC", defaultSize: 2 },
   { key: "kuchyn", icon: "🍳", label: "Kuchyně", defaultSize: 12 },
@@ -151,34 +152,13 @@ const SINGLE_ROOM_TYPES = [
   { key: "balkon", icon: "🌿", label: "Balkon / terasa", defaultSize: 5 },
 ];
 
-const SCOPE_OPTIONS = [
-  {
-    key: "kompletni",
-    label: "KOMPLETNÍ REKONSTRUKCE",
-    desc: "Vše od základu. Bourání, nové rozvody elektro i vody, povrchy, podlahy, dokončení.",
-    multiplier: 1.0,
-  },
-  {
-    key: "castecna",
-    label: "ČÁSTEČNÁ REKONSTRUKCE",
-    desc: "Nové povrchy, podlahy, malby. Bez bourání a výměny rozvodů.",
-    multiplier: 0.55,
-  },
-  {
-    key: "dokoncovaci",
-    label: "DOKONČOVACÍ PRÁCE",
-    desc: "Malby, podlahy, drobné opravy. Kosmetická úprava prostoru.",
-    multiplier: 0.25,
-  },
-];
-
 const QUALITY_OPTIONS = [
   { key: "standard", label: "STANDARD", desc: "Kvalitní materiály, funkční řešení, čistá práce", multiplier: 1.0 },
   { key: "premium", label: "PREMIUM", desc: "Nadstandardní provedení, designové prvky, detaily", multiplier: 1.45 },
   { key: "vip", label: "VIP", desc: "Luxusní materiály, individuální design, nejvyšší preciznost", multiplier: 2.1 },
 ];
 
-// Base price per m² for complete reconstruction by room type (standard quality)
+// Cena práce za m² pro kompletní rekonstrukci podle typu místnosti (standard)
 const PRICE_PER_M2: Record<string, number> = {
   koupelna: 12000,
   koupelna2: 12000,
@@ -194,6 +174,9 @@ const PRICE_PER_M2: Record<string, number> = {
   technicka: 4000,
 };
 
+// Snížená sazba DPH pro stavební práce na stavbách pro bydlení
+const VAT_RATE = 0.12;
+
 function fmt(n: number) {
   return n.toLocaleString("cs-CZ");
 }
@@ -201,24 +184,14 @@ function fmt(n: number) {
 /* ── component ───────────────────────────────── */
 
 export default function Calculator() {
-  const [mode, setMode] = useState<"byt" | "mistnosti">("byt");
   const [step, setStep] = useState(0);
-
-  // Byt mode
   const [disposition, setDisposition] = useState("");
   const [rooms, setRooms] = useState<Room[]>([]);
-
-  // Mistnosti mode
-  const [singleRooms, setSingleRooms] = useState<Room[]>([]);
-
-  // Shared
-  const [scope, setScope] = useState("kompletni");
   const [quality, setQuality] = useState("standard");
 
-  const activeRooms = mode === "byt" ? rooms : singleRooms;
-  const totalArea = activeRooms.reduce((s, r) => s + r.size, 0);
+  const totalArea = rooms.reduce((s, r) => s + r.size, 0);
 
-  // Disposition selected -> fill rooms
+  // Výběr dispozice -> předvyplnění místností
   function selectDisposition(key: string) {
     setDisposition(key);
     const disp = DISPOSITIONS.find((d) => d.key === key);
@@ -226,36 +199,15 @@ export default function Calculator() {
   }
 
   function updateRoomSize(index: number, size: number) {
-    if (mode === "byt") {
-      const updated = [...rooms];
-      updated[index] = { ...updated[index], size: Math.max(1, size) };
-      setRooms(updated);
-    } else {
-      const updated = [...singleRooms];
-      updated[index] = { ...updated[index], size: Math.max(1, size) };
-      setSingleRooms(updated);
-    }
+    const updated = [...rooms];
+    updated[index] = { ...updated[index], size: Math.max(1, size) };
+    setRooms(updated);
   }
 
-  function addRoom(index: number) {
-    if (mode === "byt") {
-      const type = SINGLE_ROOM_TYPES[index] || SINGLE_ROOM_TYPES[0];
-      setRooms([...rooms, { key: type.key, icon: type.icon, label: type.label, size: type.defaultSize }]);
-    }
-  }
-
-  function removeRoom(index: number) {
-    if (mode === "byt") {
-      setRooms(rooms.filter((_, i) => i !== index));
-    } else {
-      setSingleRooms(singleRooms.filter((_, i) => i !== index));
-    }
-  }
-
-  function addSingleRoom(key: string) {
-    const type = SINGLE_ROOM_TYPES.find((r) => r.key === key)!;
-    const existing = singleRooms.filter((r) => r.key === key).length;
-    setSingleRooms([...singleRooms, {
+  function addRoom(key: string) {
+    const type = ROOM_TYPES.find((r) => r.key === key)!;
+    const existing = rooms.filter((r) => r.key === key).length;
+    setRooms([...rooms, {
       key,
       icon: type.icon,
       label: existing > 0 ? `${type.label} ${existing + 1}` : type.label,
@@ -263,41 +215,37 @@ export default function Calculator() {
     }]);
   }
 
+  function removeRoom(index: number) {
+    setRooms(rooms.filter((_, i) => i !== index));
+  }
+
   function reset() {
     setStep(0);
     setDisposition("");
     setRooms([]);
-    setSingleRooms([]);
-    setScope("kompletni");
     setQuality("standard");
   }
 
-  // Calculate
-  const scopeMul = SCOPE_OPTIONS.find((s) => s.key === scope)?.multiplier || 1;
+  // Výpočet
   const qualMul = QUALITY_OPTIONS.find((q) => q.key === quality)?.multiplier || 1;
 
   let totalNet = 0;
   const breakdown: { label: string; subtotal: number }[] = [];
-  activeRooms.forEach((room) => {
+  rooms.forEach((room) => {
     const priceM2 = PRICE_PER_M2[room.key] || 5500;
-    const roomTotal = Math.round(room.size * priceM2 * scopeMul * qualMul);
+    const roomTotal = Math.round(room.size * priceM2 * qualMul);
     totalNet += roomTotal;
     breakdown.push({ label: `${room.icon} ${room.label} (${room.size} m²)`, subtotal: roomTotal });
   });
 
-  const dph = Math.round(totalNet * 0.21);
+  const dph = Math.round(totalNet * VAT_RATE);
   const gross = totalNet + dph;
   const lo = Math.round((gross * 0.85) / 1000) * 1000;
   const hi = Math.round((gross * 1.25) / 1000) * 1000;
 
-  // Step labels depend on mode
-  const steps = mode === "byt"
-    ? ["Dispozice", "Místnosti", "Rozsah", "Standard", "Cena"]
-    : ["Místnosti", "Rozsah", "Standard", "Cena"];
+  const steps = ["Dispozice", "Místnosti", "Standard", "Cena"];
 
-  const canProceedStep0 = mode === "byt" ? disposition !== "" : singleRooms.length > 0;
-
-  // Shared styles
+  // Sdílené styly
   const radioStyle = (active: boolean): React.CSSProperties => ({
     background: active ? "rgba(166,124,42,0.08)" : "var(--surface)",
     border: `1.5px solid ${active ? "var(--gold)" : "var(--border)"}`,
@@ -336,9 +284,9 @@ export default function Calculator() {
 
   const btnDisabled: React.CSSProperties = { ...btnPrimary, background: "var(--border)", cursor: "not-allowed", opacity: 0.5 };
 
-  /* ── Render functions for each step ── */
+  /* ── Jednotlivé kroky ── */
 
-  function renderBytStep0() {
+  function renderDisposition() {
     return (
       <div>
         <h3 style={{ fontFamily: "var(--ff-head)", fontSize: "1.3rem", fontWeight: 600, marginBottom: "0.5rem" }}>
@@ -380,54 +328,41 @@ export default function Calculator() {
   }
 
   function renderRoomsList() {
-    const isByt = mode === "byt";
-    const currentRooms = isByt ? rooms : singleRooms;
-
     return (
       <div>
         <h3 style={{ fontFamily: "var(--ff-head)", fontSize: "1.3rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-          {isByt ? "Zkontrolujte místnosti" : "Jaké místnosti rekonstruujete?"}
+          Zkontrolujte místnosti
         </h3>
         <p style={{ fontSize: "0.82rem", color: "var(--muted)", marginBottom: "1.5rem" }}>
-          {isByt
-            ? "Upravte velikosti, přidejte nebo odeberte místnosti."
-            : "Přidejte místnosti a zadejte jejich velikost."}
+          Upravte velikosti, přidejte nebo odeberte místnosti.
         </p>
 
-        {/* Add room buttons (for mistnosti mode or adding extra to byt) */}
-        {(!isByt || currentRooms.length > 0) && (
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1rem" }}>
-            {SINGLE_ROOM_TYPES.map((r, i) => (
-              <button
-                key={r.key}
-                onClick={() => isByt ? addRoom(i) : addSingleRoom(r.key)}
-                style={{
-                  background: "var(--surface)",
-                  border: "1px solid var(--border)",
-                  borderRadius: "2px",
-                  padding: "0.35rem 0.7rem",
-                  cursor: "pointer",
-                  fontSize: "0.72rem",
-                  color: "var(--muted)",
-                  fontFamily: "var(--ff-body)",
-                }}
-              >
-                + {r.icon} {r.label}
-              </button>
-            ))}
-          </div>
-        )}
+        {/* Přidání místnosti */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1rem" }}>
+          {ROOM_TYPES.map((r) => (
+            <button
+              key={r.key}
+              onClick={() => addRoom(r.key)}
+              style={{
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
+                borderRadius: "2px",
+                padding: "0.35rem 0.7rem",
+                cursor: "pointer",
+                fontSize: "0.72rem",
+                color: "var(--muted)",
+                fontFamily: "var(--ff-body)",
+              }}
+            >
+              + {r.icon} {r.label}
+            </button>
+          ))}
+        </div>
 
-        {currentRooms.length === 0 && !isByt && (
-          <div style={{ padding: "2rem", textAlign: "center", color: "var(--muted)", fontSize: "0.85rem", background: "var(--surface)", borderRadius: "4px", marginBottom: "1rem" }}>
-            Klikněte na tlačítka výše pro přidání místností
-          </div>
-        )}
-
-        {/* Room list */}
-        {currentRooms.length > 0 && (
+        {/* Seznam místností */}
+        {rooms.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginBottom: "1rem" }}>
-            {currentRooms.map((room, i) => (
+            {rooms.map((room, i) => (
               <div
                 key={i}
                 style={{
@@ -468,7 +403,7 @@ export default function Calculator() {
                 </button>
               </div>
             ))}
-            {/* Total */}
+            {/* Součet */}
             <div style={{ display: "flex", justifyContent: "flex-end", padding: "0.4rem 0.8rem", fontSize: "0.82rem", color: "var(--muted)" }}>
               Celkem: <strong style={{ color: "var(--text)", marginLeft: "0.3rem" }}>{totalArea} m²</strong>
             </div>
@@ -476,55 +411,14 @@ export default function Calculator() {
         )}
 
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <button onClick={() => setStep(mode === "byt" ? 0 : 0)} style={btnBack}>← Zpět</button>
+          <button onClick={() => setStep(0)} style={btnBack}>← Zpět</button>
           <button
-            disabled={currentRooms.length === 0}
-            onClick={() => setStep(mode === "byt" ? 2 : 1)}
-            style={currentRooms.length > 0 ? btnPrimary : btnDisabled}
+            disabled={rooms.length === 0}
+            onClick={() => setStep(2)}
+            style={rooms.length > 0 ? btnPrimary : btnDisabled}
           >
             Pokračovat →
           </button>
-        </div>
-      </div>
-    );
-  }
-
-  function renderScope() {
-    return (
-      <div>
-        <h3 style={{ fontFamily: "var(--ff-head)", fontSize: "1.3rem", fontWeight: 600, marginBottom: "0.5rem" }}>
-          Jaký rozsah prací?
-        </h3>
-        <p style={{ fontSize: "0.82rem", color: "var(--muted)", marginBottom: "1.5rem" }}>
-          Čím rozsáhlejší práce, tím vyšší cena.
-        </p>
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-          {SCOPE_OPTIONS.map((s) => (
-            <button key={s.key} onClick={() => setScope(s.key)} style={radioStyle(scope === s.key)}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <span
-                  style={{
-                    width: "16px",
-                    height: "16px",
-                    borderRadius: "50%",
-                    border: `2px solid ${scope === s.key ? "var(--gold)" : "var(--border)"}`,
-                    background: scope === s.key ? "var(--gold)" : "transparent",
-                    flexShrink: 0,
-                  }}
-                />
-                <div>
-                  <div style={{ fontFamily: "var(--ff-head)", fontSize: "0.95rem", fontWeight: 600, letterSpacing: "0.03em" }}>
-                    {s.label}
-                  </div>
-                  <div style={{ fontSize: "0.78rem", color: "var(--muted)", marginTop: "0.15rem" }}>{s.desc}</div>
-                </div>
-              </div>
-            </button>
-          ))}
-        </div>
-        <div style={{ marginTop: "1.5rem", display: "flex", justifyContent: "space-between" }}>
-          <button onClick={() => setStep(mode === "byt" ? 1 : 0)} style={btnBack}>← Zpět</button>
-          <button onClick={() => setStep(mode === "byt" ? 3 : 2)} style={btnPrimary}>Pokračovat →</button>
         </div>
       </div>
     );
@@ -564,32 +458,32 @@ export default function Calculator() {
           ))}
         </div>
         <div style={{ marginTop: "1.5rem", display: "flex", justifyContent: "space-between" }}>
-          <button onClick={() => setStep(mode === "byt" ? 2 : 1)} style={btnBack}>← Zpět</button>
-          <button onClick={() => setStep(mode === "byt" ? 4 : 3)} style={btnPrimary}>Zobrazit cenu →</button>
+          <button onClick={() => setStep(1)} style={btnBack}>← Zpět</button>
+          <button onClick={() => setStep(3)} style={btnPrimary}>Zobrazit cenu →</button>
         </div>
       </div>
     );
   }
 
   function renderResult() {
-    const scopeLabel = SCOPE_OPTIONS.find((s) => s.key === scope)?.label || "";
     const qualLabel = QUALITY_OPTIONS.find((q) => q.key === quality)?.label || "";
+    const dispLabel = DISPOSITIONS.find((d) => d.key === disposition)?.label || "";
 
     return (
       <div>
         <div style={{ textAlign: "center", paddingBottom: "1.5rem", borderBottom: "1px solid var(--border)", marginBottom: "1.5rem" }}>
           <div style={{ fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--muted)", marginBottom: "0.5rem" }}>
-            Orientační cena rekonstrukce
+            Orientační cena kompletní rekonstrukce
           </div>
           <div style={{ fontFamily: "var(--ff-head)", fontSize: "2.4rem", fontWeight: 700, color: "var(--gold)", lineHeight: 1.1 }}>
             {fmt(lo)} – {fmt(hi)} Kč
           </div>
           <div style={{ fontSize: "0.78rem", color: "var(--muted)", marginTop: "0.4rem" }}>
-            vč. DPH 21 % / {scopeLabel.toLowerCase()} / {qualLabel.toLowerCase()} / bez materiálu
+            {dispLabel} / {totalArea} m² / {qualLabel.toLowerCase()} / vč. DPH 12 % / bez materiálu
           </div>
         </div>
 
-        {/* Breakdown */}
+        {/* Rozpis */}
         <div style={{ marginBottom: "1.5rem" }}>
           {breakdown.map((rb, i) => (
             <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "0.45rem 0", fontSize: "0.84rem", borderBottom: "1px solid var(--border)" }}>
@@ -598,7 +492,7 @@ export default function Calculator() {
             </div>
           ))}
           <div style={{ display: "flex", justifyContent: "space-between", padding: "0.45rem 0", fontSize: "0.84rem", borderBottom: "1px solid var(--border)" }}>
-            <span style={{ color: "var(--muted)" }}>DPH 21 %</span>
+            <span style={{ color: "var(--muted)" }}>DPH 12 %</span>
             <span>{fmt(dph)} Kč</span>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", padding: "0.6rem 0 0", fontFamily: "var(--ff-head)", fontSize: "1.15rem", fontWeight: 600, color: "var(--gold)" }}>
@@ -627,20 +521,11 @@ export default function Calculator() {
     );
   }
 
-  /* ── Determine what to render ── */
   function renderStep() {
-    if (mode === "byt") {
-      if (step === 0) return renderBytStep0();
-      if (step === 1) return renderRoomsList();
-      if (step === 2) return renderScope();
-      if (step === 3) return renderQuality();
-      return renderResult();
-    } else {
-      if (step === 0) return renderRoomsList();
-      if (step === 1) return renderScope();
-      if (step === 2) return renderQuality();
-      return renderResult();
-    }
+    if (step === 0) return renderDisposition();
+    if (step === 1) return renderRoomsList();
+    if (step === 2) return renderQuality();
+    return renderResult();
   }
 
   return (
@@ -651,48 +536,18 @@ export default function Calculator() {
     >
       <div style={{ position: "absolute", top: "-200px", right: "-200px", width: "600px", height: "600px", background: "radial-gradient(circle, rgba(166,124,42,0.07), transparent 70%)", pointerEvents: "none" }} />
 
-      {/* Header */}
+      {/* Hlavička */}
       <div style={{ textAlign: "center", marginBottom: "3rem", position: "relative" }}>
         <div style={{ color: "var(--gold)", fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.2em", marginBottom: "0.75rem", fontWeight: 500 }}>
           Kalkulačka
         </div>
-        <h2 style={{ fontFamily: "var(--ff-head)", fontSize: "clamp(2.5rem, 4vw, 3.5rem)", margin: "0 0 1.5rem 0", fontWeight: 700 }}>
+        <h2 style={{ fontFamily: "var(--ff-head)", fontSize: "clamp(2.5rem, 4vw, 3.5rem)", margin: "0 0 1rem 0", fontWeight: 700 }}>
           ORIENTAČNÍ CENA
         </h2>
-
-        {/* Mode toggle */}
-        <div
-          style={{
-            display: "inline-flex",
-            background: "var(--card)",
-            border: "1px solid var(--border)",
-            borderRadius: "2px",
-            overflow: "hidden",
-          }}
-        >
-          {[
-            { key: "byt" as const, label: "Celý byt / dům" },
-            { key: "mistnosti" as const, label: "Jednotlivé místnosti" },
-          ].map((m) => (
-            <button
-              key={m.key}
-              onClick={() => { setMode(m.key); setStep(0); setDisposition(""); setRooms([]); setSingleRooms([]); }}
-              style={{
-                padding: "0.6rem 1.5rem",
-                fontSize: "0.82rem",
-                fontWeight: 500,
-                cursor: "pointer",
-                border: "none",
-                background: mode === m.key ? "var(--gold)" : "transparent",
-                color: mode === m.key ? "#fff" : "var(--muted)",
-                fontFamily: "var(--ff-body)",
-                transition: "all 0.15s",
-              }}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
+        <p style={{ fontSize: "0.9rem", color: "var(--muted)", maxWidth: "540px", margin: "0 auto" }}>
+          Děláme kompletní rekonstrukce celých bytů a domů. Vyberte dispozici a během chvilky víte,
+          na čem jste.
+        </p>
       </div>
 
       {/* Layout */}
@@ -700,9 +555,9 @@ export default function Calculator() {
         className="calc-layout"
         style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "start", maxWidth: "1050px", margin: "0 auto", position: "relative" }}
       >
-        {/* Left - wizard */}
+        {/* Vlevo - průvodce */}
         <div style={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: "4px", overflow: "hidden" }}>
-          {/* Step indicators */}
+          {/* Ukazatel kroků */}
           <div style={{ display: "flex", background: "var(--bg)", borderBottom: "1px solid var(--border)" }}>
             {steps.map((t, i) => {
               const isActive = i === step;
@@ -734,7 +589,7 @@ export default function Calculator() {
           </div>
         </div>
 
-        {/* Right - info panel */}
+        {/* Vpravo - info panel */}
         <div className="calc-info">
           <h3 style={{ fontFamily: "var(--ff-head)", fontSize: "1.4rem", fontWeight: 600, marginBottom: "0.5rem" }}>
             CO CENA ZAHRNUJE
@@ -743,8 +598,9 @@ export default function Calculator() {
             Kalkulace počítá s těmito položkami:
           </p>
           {[
+            { title: "Kompletní rekonstrukce", desc: "Bourání, nové rozvody elektro i vody, povrchy, podlahy a dokončení. Byt předáváme hotový." },
             { title: "Práce řemeslníků", desc: "Bourání, zdění, obklady, elektro, vodo. Vše provádí naši vlastní pracovníci." },
-            { title: "DPH 21 %", desc: "Jsme plátci DPH. Cena v kalkulačce je včetně daně." },
+            { title: "DPH 12 %", desc: "Jsme plátci DPH. U rekonstrukcí bytů a domů platí snížená sazba." },
             { title: "Odvoz suti", desc: "Likvidace odpadu a stavební suti je součástí kalkulace." },
             { title: "Koordinace", desc: "Plánování, dozor, komunikace s vámi. Jeden kontakt po celou dobu." },
           ].map((item) => (

@@ -18,32 +18,17 @@ type Project = {
 
 const TYPE_LABELS: Record<string, string> = {
   all: "Vše",
-  koupelna: "Koupelny",
-  kuchyn: "Kuchyně",
   byt: "Byty",
   dum: "Domy",
-  svj: "SVJ",
 };
 
-// Demo data — will be replaced by Supabase fetch
+// Demo data — nahradí se daty ze Supabase
 const DEMO_PROJECTS: Project[] = [
   {
     id: "1",
-    title: "Kompletní rekonstrukce koupelny",
-    type: "koupelna",
-    description: "Demolice, nové rozvody, obklady a sanitární keramika. Moderní walk-in sprcha.",
-    area_m2: 8,
-    duration_days: 14,
-    location: "Ostrava-Poruba",
-    year: 2026,
-    cover_image: "",
-    images: [],
-  },
-  {
-    id: "2",
-    title: "Rekonstrukce bytu 3+1",
+    title: "Kompletní rekonstrukce bytu 3+1",
     type: "byt",
-    description: "Celková přestavba panelákového bytu. Nová dispozice, podlahy, elektřina.",
+    description: "Celková přestavba panelákového bytu. Nová dispozice, rozvody, podlahy, koupelna i kuchyně.",
     area_m2: 75,
     duration_days: 42,
     location: "Ostrava-Zábřeh",
@@ -52,12 +37,24 @@ const DEMO_PROJECTS: Project[] = [
     images: [],
   },
   {
+    id: "2",
+    title: "Byt 2+kk od základu",
+    type: "byt",
+    description: "Vybourané umakartové jádro, nové elektro i voda, podlahová topení v koupelně, malby.",
+    area_m2: 48,
+    duration_days: 32,
+    location: "Ostrava-Poruba",
+    year: 2026,
+    cover_image: "",
+    images: [],
+  },
+  {
     id: "3",
-    title: "Kuchyně s ostrovem",
-    type: "kuchyn",
-    description: "Bourání příčky, nové rozvody vody a elektřiny, příprava pro kuchyňskou linku s ostrovem.",
-    area_m2: 18,
-    duration_days: 21,
+    title: "Rekonstrukce bytu 4+1 pro rodinu",
+    type: "byt",
+    description: "Sloučení kuchyně s obývákem, dvě dětské pokoje, nová koupelna se samostatným WC.",
+    area_m2: 92,
+    duration_days: 55,
     location: "Ostrava-Hrabůvka",
     year: 2026,
     cover_image: "",
@@ -65,12 +62,12 @@ const DEMO_PROJECTS: Project[] = [
   },
   {
     id: "4",
-    title: "Společné prostory SVJ",
-    type: "svj",
-    description: "Oprava a malba schodiště, nové osvětlení, výměna poštovních schránek.",
-    area_m2: 120,
-    duration_days: 10,
-    location: "Ostrava-Výškovice",
+    title: "Byt 1+kk k pronájmu",
+    type: "byt",
+    description: "Kompletní rekonstrukce malého bytu na klíč. Předáno včetně úklidu a připraveno k nastěhování.",
+    area_m2: 30,
+    duration_days: 24,
+    location: "Ostrava-Dubina",
     year: 2026,
     cover_image: "",
     images: [],
@@ -89,13 +86,13 @@ const DEMO_PROJECTS: Project[] = [
   },
   {
     id: "6",
-    title: "Malá koupelna v paneláku",
-    type: "koupelna",
-    description: "Rekonstrukce umakartového jádra. Nové rozvody, sprchový kout, podlahové vytápění.",
-    area_m2: 4,
-    duration_days: 12,
-    location: "Ostrava-Dubina",
-    year: 2026,
+    title: "Starší dům po rodičích",
+    type: "dum",
+    description: "Přestavba dispozice v přízemí, nová koupelna, výměna elektroinstalace v celém domě.",
+    area_m2: 115,
+    duration_days: 70,
+    location: "Ostrava-Petřkovice",
+    year: 2025,
     cover_image: "",
     images: [],
   },
@@ -242,10 +239,7 @@ export default function ReferencesSection() {
                 />
               ) : (
                 <span style={{ opacity: 0.5 }}>
-                  {project.type === "koupelna" ? "🛁" :
-                   project.type === "kuchyn" ? "🍳" :
-                   project.type === "byt" ? "🏠" :
-                   project.type === "dum" ? "🏡" : "🏢"}
+                  {project.type === "dum" ? "🏡" : "🏠"}
                 </span>
               )}
               {/* Type badge */}
